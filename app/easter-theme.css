@@ -1,0 +1,154 @@
+/* ============================================
+   Easter theme — premium seasonal accents
+   ============================================ */
+
+.easter-theme-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.easter-theme-layer--admin {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.easter-accent {
+  position: absolute;
+  pointer-events: none;
+}
+
+.easter-accent--egg-1 {
+  width: 26px;
+  height: 34px;
+  top: 14%;
+  left: 7%;
+  background: radial-gradient(ellipse at 35% 28%, #faf0f5 0%, #d8b4cc 55%, #a888a8 100%);
+  border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+  transform: rotate(-18deg);
+  box-shadow: inset -2px -3px 6px rgba(0, 0, 0, 0.06);
+  opacity: 0.88;
+}
+
+.easter-accent--egg-2 {
+  width: 20px;
+  height: 28px;
+  top: 20%;
+  right: 10%;
+  background: radial-gradient(ellipse at 40% 32%, #f8f4ec 0%, #c9b8e8 50%, #8f7fb8 100%);
+  border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+  transform: rotate(14deg);
+  opacity: 0.82;
+}
+
+.easter-accent--basket {
+  width: 44px;
+  height: 36px;
+  bottom: 12%;
+  left: 5%;
+  opacity: 0.75;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 85%, #8b6914 0%, transparent 70%),
+    linear-gradient(180deg, #c9a86c 0%, #a8844a 100%);
+  border-radius: 0 0 40% 40% / 0 0 55% 55%;
+  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.easter-accent--basket::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 28px;
+  height: 18px;
+  transform: translateX(-50%);
+  border: 3px solid #a8844a;
+  border-bottom: none;
+  border-radius: 50% 50% 0 0;
+}
+
+.easter-accent--ears {
+  width: 32px;
+  height: 38px;
+  top: 6%;
+  right: 5%;
+  opacity: 0.7;
+}
+
+.easter-accent--ears::before,
+.easter-accent--ears::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 12px;
+  height: 30px;
+  background: linear-gradient(180deg, #f5ebe8 0%, #e8d8d4 100%);
+  border-radius: 50% 50% 40% 40%;
+  border: 1px solid rgba(168, 132, 120, 0.25);
+}
+
+.easter-accent--ears::before {
+  left: 2px;
+  transform: rotate(-12deg);
+}
+
+.easter-accent--ears::after {
+  right: 2px;
+  transform: rotate(12deg);
+}
+
+/* Admin seasonal banner */
+
+.admin-seasonal-banner {
+  position: relative;
+  margin: 0 0 1.5rem;
+  padding: 1.35rem 1.5rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(155, 142, 196, 0.1), rgba(248, 246, 242, 0.98));
+  border: 1px solid var(--border);
+  overflow: hidden;
+  text-align: center;
+}
+
+.admin-seasonal-banner--easter {
+  background: linear-gradient(135deg, rgba(155, 142, 196, 0.14), rgba(248, 246, 242, 0.96));
+  border-color: rgba(155, 142, 196, 0.28);
+}
+
+.admin-seasonal-banner__content {
+  position: relative;
+  z-index: 2;
+}
+
+.admin-seasonal-banner__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3vw, 1.65rem);
+  font-weight: 600;
+  color: var(--coffee-dark);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.admin-seasonal-banner__subtitle {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0.4rem 0 0;
+}
+
+@media (max-width: 768px) {
+  .easter-accent--egg-1,
+  .easter-accent--basket {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+
+  .easter-accent--ears {
+    display: none;
+  }
+}

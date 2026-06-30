@@ -1,0 +1,490 @@
+/* ============================================
+   Seasonal Theme Decorations (Admin + Public)
+   ============================================ */
+
+.seasonal-scene {
+  pointer-events: none;
+}
+
+/* Public site: no fixed decoration overlays (garlands, ornaments, reference crops). */
+.seasonal-scene--site {
+  display: none !important;
+}
+
+.seasonal-scene--card {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+/* ---- Floating decorations ---- */
+
+.seasonal-floaters {
+  position: absolute;
+  inset: 0;
+}
+
+.seasonal-floater {
+  position: absolute;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.12));
+  animation: seasonal-float 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.seasonal-scene--site .seasonal-floater {
+  font-size: clamp(1.4rem, 2.5vw, 2.4rem);
+  opacity: 0.28;
+}
+
+.seasonal-scene--card .seasonal-floater {
+  font-size: clamp(1.35rem, 4.5vw, 2rem);
+  opacity: 0.85;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.25));
+}
+
+.seasonal-floater--1 { top: 10%; left: 6%; animation-delay: 0s; }
+.seasonal-floater--2 { top: 18%; right: 8%; animation-delay: 0.8s; }
+.seasonal-floater--3 { top: 42%; left: 12%; animation-delay: 1.6s; }
+.seasonal-floater--4 { top: 50%; right: 14%; animation-delay: 2.4s; }
+.seasonal-floater--5 { bottom: 28%; left: 8%; animation-delay: 3.2s; }
+.seasonal-floater--6 { bottom: 20%; right: 10%; animation-delay: 4s; }
+.seasonal-floater--7 { top: 32%; left: 42%; animation-delay: 4.8s; }
+.seasonal-floater--8 { bottom: 12%; right: 38%; animation-delay: 5.6s; }
+
+.seasonal-scene--card .seasonal-floater--1 { top: 18%; left: 8%; }
+.seasonal-scene--card .seasonal-floater--2 { top: 12%; right: 10%; }
+.seasonal-scene--card .seasonal-floater--3 { top: 55%; left: 16%; }
+.seasonal-scene--card .seasonal-floater--4 { top: 48%; right: 18%; }
+.seasonal-scene--card .seasonal-floater--5 { bottom: 14%; left: 10%; }
+.seasonal-scene--card .seasonal-floater--6 { bottom: 18%; right: 12%; }
+.seasonal-scene--card .seasonal-floater--7 { top: 30%; left: 44%; }
+.seasonal-scene--card .seasonal-floater--8 { bottom: 8%; right: 40%; }
+
+@keyframes seasonal-float {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  50% { transform: translateY(-14px) rotate(6deg) scale(1.05); }
+}
+
+/* ---- Particle drift (site only) ---- */
+
+.seasonal-particles {
+  position: absolute;
+  inset: 0;
+}
+
+.seasonal-particle {
+  position: absolute;
+  top: -10%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  animation: particle-fall 14s linear infinite;
+  opacity: 0;
+}
+
+@keyframes particle-fall {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.5; }
+  100% { transform: translateY(110vh) translateX(20px); opacity: 0; }
+}
+
+/* ---- Effect layers ---- */
+
+.seasonal-effect {
+  position: absolute;
+  inset: 0;
+}
+
+.seasonal-effect--snow {
+  background-image:
+    radial-gradient(2px 2px at 25px 35px, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(2px 2px at 90px 130px, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1.5px 1.5px at 170px 90px, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(1px 1px at 50px 160px, rgba(255, 255, 255, 0.6), transparent);
+  background-size: 220px 220px;
+  animation: snow-fall 14s linear infinite;
+}
+
+.seasonal-effect--sparkle {
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 82% 28%, rgba(212, 168, 42, 0.14), transparent 24%),
+    radial-gradient(circle at 50% 70%, rgba(255, 255, 255, 0.1), transparent 30%);
+  animation: sparkle-pulse 4.5s ease-in-out infinite;
+}
+
+.seasonal-effect--hearts {
+  background:
+    radial-gradient(circle at 14% 24%, rgba(194, 24, 91, 0.1), transparent 30%),
+    radial-gradient(circle at 86% 32%, rgba(244, 143, 177, 0.12), transparent 28%),
+    radial-gradient(circle at 48% 78%, rgba(216, 27, 96, 0.08), transparent 32%);
+  animation: sparkle-pulse 5s ease-in-out infinite;
+}
+
+.seasonal-effect--confetti {
+  background-image:
+    linear-gradient(125deg, transparent 42%, rgba(212, 168, 42, 0.09) 50%, transparent 58%),
+    linear-gradient(-125deg, transparent 42%, rgba(196, 30, 58, 0.07) 50%, transparent 58%),
+    linear-gradient(45deg, transparent 42%, rgba(46, 125, 50, 0.06) 50%, transparent 58%);
+  background-size: 200px 200px, 240px 240px, 180px 180px;
+  animation: confetti-shift 12s linear infinite;
+}
+
+.seasonal-effect--flags {
+  background: linear-gradient(
+    180deg,
+    rgba(46, 125, 50, 0.07) 0%,
+    transparent 16%,
+    transparent 84%,
+    rgba(198, 40, 40, 0.06) 100%
+  );
+}
+
+.seasonal-effect--fireworks {
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.16), transparent 8%),
+    radial-gradient(circle at 78% 22%, rgba(255, 255, 255, 0.12), transparent 7%),
+    radial-gradient(circle at 60% 65%, rgba(212, 175, 55, 0.1), transparent 9%);
+  animation: fireworks-burst 6s ease-in-out infinite;
+}
+
+.seasonal-effect--petals {
+  background:
+    radial-gradient(ellipse at 22% 18%, rgba(248, 187, 208, 0.14), transparent 35%),
+    radial-gradient(ellipse at 75% 26%, rgba(197, 185, 232, 0.12), transparent 32%),
+    radial-gradient(ellipse at 45% 80%, rgba(255, 214, 231, 0.1), transparent 38%);
+  animation: sparkle-pulse 6s ease-in-out infinite;
+}
+
+.seasonal-effect--leaves {
+  background:
+    radial-gradient(ellipse at 15% 70%, rgba(230, 81, 0, 0.08), transparent 40%),
+    radial-gradient(ellipse at 85% 60%, rgba(191, 54, 12, 0.07), transparent 35%),
+    linear-gradient(180deg, rgba(26, 10, 0, 0.03) 0%, transparent 30%);
+}
+
+.seasonal-effect--sale {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.04) 0%, transparent 50%);
+}
+
+@keyframes snow-fall {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; }
+  to { background-position: 0 240px, 0 320px, 0 280px, 0 360px; }
+}
+
+@keyframes sparkle-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@keyframes confetti-shift {
+  from { background-position: 0 0, 0 0, 0 0; }
+  to { background-position: 200px 200px, -240px 240px, 180px -180px; }
+}
+
+@keyframes fireworks-burst {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* ---- Christmas lights ---- */
+
+.seasonal-lights {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding: 0 2%;
+}
+
+.seasonal-scene--card .seasonal-lights {
+  height: 18px;
+}
+
+.seasonal-light-bulb {
+  width: 8px;
+  height: 11px;
+  border-radius: 50% 50% 45% 45%;
+  animation: light-twinkle 1.8s ease-in-out infinite;
+}
+
+.seasonal-scene--card .seasonal-light-bulb {
+  width: 6px;
+  height: 8px;
+}
+
+.seasonal-light-bulb:nth-child(4n + 1) { background: #e53935; box-shadow: 0 0 8px rgba(229, 57, 53, 0.7); }
+.seasonal-light-bulb:nth-child(4n + 2) { background: #43a047; box-shadow: 0 0 8px rgba(67, 160, 71, 0.7); }
+.seasonal-light-bulb:nth-child(4n + 3) { background: #fdd835; box-shadow: 0 0 8px rgba(253, 216, 53, 0.7); }
+.seasonal-light-bulb:nth-child(4n) { background: #1e88e5; box-shadow: 0 0 8px rgba(30, 136, 229, 0.7); }
+
+@keyframes light-twinkle {
+  0%, 100% { opacity: 0.65; filter: brightness(0.9); }
+  50% { opacity: 1; filter: brightness(1.3); }
+}
+
+/* ---- Black Friday sale badges ---- */
+
+.seasonal-sale-badges {
+  position: absolute;
+  inset: 0;
+}
+
+.seasonal-sale-badge {
+  position: absolute;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #111;
+  background: linear-gradient(135deg, #ffd700, #ffb300);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: seasonal-float 5s ease-in-out infinite;
+}
+
+.seasonal-scene--site .seasonal-sale-badge {
+  opacity: 0.4;
+}
+
+.seasonal-sale-badge--1 { top: 15%; right: 12%; transform: rotate(-8deg); }
+.seasonal-sale-badge--2 { bottom: 20%; left: 10%; transform: rotate(6deg); animation-delay: 1.2s; }
+
+.seasonal-sale-badges--card .seasonal-sale-badge {
+  opacity: 0.95;
+  font-size: 0.75rem;
+  z-index: 3;
+}
+
+.seasonal-sale-badges--card .seasonal-sale-badge--1 { top: 22%; right: 8%; }
+.seasonal-sale-badges--card .seasonal-sale-badge--2 { bottom: 28%; left: 6%; }
+
+/* ---- Christmas ornaments ---- */
+
+.seasonal-ornaments {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.seasonal-ornament {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+  animation: ornament-swing 4s ease-in-out infinite;
+}
+
+.seasonal-scene--card .seasonal-ornament {
+  width: 10px;
+  height: 10px;
+}
+
+.seasonal-ornament--1 { top: 18%; left: 22%; background: #c41e3a; }
+.seasonal-ornament--2 { top: 14%; left: 48%; background: #d4af37; animation-delay: 0.5s; }
+.seasonal-ornament--3 { top: 20%; right: 24%; background: #1e88e5; animation-delay: 1s; }
+.seasonal-ornament--4 { top: 16%; right: 42%; background: #43a047; animation-delay: 1.5s; }
+
+.seasonal-ornament::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 5px;
+  background: rgba(212, 175, 55, 0.8);
+}
+
+@keyframes ornament-swing {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+.seasonal-floater--hero {
+  font-size: clamp(2.2rem, 5vw, 3.5rem) !important;
+  opacity: 0.92 !important;
+  z-index: 3;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.3));
+}
+
+.seasonal-scene--card .seasonal-floater--hero {
+  font-size: clamp(1.8rem, 6vw, 2.6rem) !important;
+  opacity: 0.95 !important;
+}
+
+.seasonal-scene--christmas .seasonal-floater--hero { top: 38% !important; left: 42% !important; }
+.seasonal-scene--easter .seasonal-floater--hero { top: 40% !important; left: 40% !important; }
+.seasonal-scene--valentines .seasonal-floater--hero { top: 36% !important; left: 38% !important; }
+
+/* ---- Admin theme cards ---- */
+
+.admin-card.admin-theme-card {
+  padding: 0;
+  overflow: hidden;
+  border-width: 3px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-theme-card__preview {
+  position: relative;
+  min-height: 10.5rem;
+  overflow: hidden;
+}
+
+.admin-theme-card__preview-default {
+  display: grid;
+  place-items: center;
+  gap: 0.4rem;
+  height: 100%;
+  min-height: 10.5rem;
+}
+
+.admin-theme-card__preview-default-icon {
+  font-size: 2.25rem;
+  opacity: 0.45;
+}
+
+.admin-theme-card__preview-default-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--coffee);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-theme-card__live-badge {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  z-index: 10;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #1b5e20;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.admin-theme-card__body {
+  padding: 1.25rem 1.5rem 1.5rem;
+  background: #fff;
+}
+
+.admin-theme-card__body h2 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.admin-theme-card__live-label {
+  color: #1b5e20;
+  font-weight: 700;
+}
+
+.admin-card.admin-theme-card--christmas { border-color: #c41e3a; }
+.admin-card.admin-theme-card--new-year { border-color: #d4af37; }
+.admin-card.admin-theme-card--easter { border-color: #9b8ec4; }
+.admin-card.admin-theme-card--valentines { border-color: #c2185b; }
+.admin-card.admin-theme-card--independence-day { border-color: #198A00; }
+.admin-card.admin-theme-card--black-friday { border-color: #ffd700; }
+.admin-card.admin-theme-card--mothers-day { border-color: #d81b60; }
+.admin-card.admin-theme-card--fathers-day { border-color: #1565c0; }
+.admin-card.admin-theme-card--default { border-color: var(--coffee); }
+
+.admin-theme-card--active.admin-theme-card--christmas { box-shadow: 0 0 0 3px #c41e3a, var(--shadow-lift); }
+.admin-theme-card--active.admin-theme-card--new-year { box-shadow: 0 0 0 3px #d4af37, var(--shadow-lift); }
+.admin-theme-card--active.admin-theme-card--easter { box-shadow: 0 0 0 3px #9b8ec4, var(--shadow-lift); }
+.admin-theme-card--active.admin-theme-card--valentines { box-shadow: 0 0 0 3px #c2185b, var(--shadow-lift); }
+.admin-theme-card--active.admin-theme-card--independence-day { box-shadow: 0 0 0 3px #198A00, var(--shadow-lift); }
+.admin-theme-card--active.admin-theme-card--black-friday { box-shadow: 0 0 0 3px #ffd700, var(--shadow-lift); }
+.admin-theme-card--active.admin-theme-card--mothers-day { box-shadow: 0 0 0 3px #d81b60, var(--shadow-lift); }
+.admin-theme-card--active.admin-theme-card--fathers-day { box-shadow: 0 0 0 3px #1565c0, var(--shadow-lift); }
+.admin-theme-card--active.admin-theme-card--default { box-shadow: 0 0 0 3px var(--coffee), var(--shadow-lift); }
+
+/* ---- Themed banners ---- */
+
+.seasonal-banner {
+  background: var(--seasonal-banner-bg, linear-gradient(90deg, var(--gold), var(--gold-light)));
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.seasonal-banner--christmas .seasonal-banner__inner::before { content: "🎄 "; }
+.seasonal-banner--new-year .seasonal-banner__inner::before { content: "🎆 "; }
+.seasonal-banner--easter .seasonal-banner__inner::before { content: "🐣 "; }
+.seasonal-banner--valentines .seasonal-banner__inner::before { content: "💕 "; }
+.seasonal-banner--independence-day .seasonal-banner__inner::before { content: "🇿🇲 "; }
+.seasonal-banner--black-friday .seasonal-banner__inner::before { content: "🏷️ "; }
+.seasonal-banner--mothers-day .seasonal-banner__inner::before { content: "💐 "; }
+.seasonal-banner--fathers-day .seasonal-banner__inner::before { content: "👔 "; }
+
+/* ---- Per-theme body accents (subtle page tint) ---- */
+
+.theme-christmas { --gold: #c41e3a; --gold-light: #e53935; }
+.theme-new-year { --gold: #d4af37; --gold-light: #f5e6a8; }
+.theme-easter { --gold: #9b8ec4; --gold-light: #c5b9e8; }
+.theme-valentines { --gold: #c2185b; --gold-light: #f48fb1; }
+.theme-independence { --gold: #198A00; --gold-light: #EF7D00; }
+.theme-black-friday { --gold: #1a1a1a; --gold-light: #ffd700; }
+.theme-mothers-day { --gold: #d81b60; --gold-light: #f8bbd0; }
+.theme-fathers-day { --gold: #1565c0; --gold-light: #90caf9; }
+
+body.theme-christmas {
+  background: linear-gradient(180deg, #faf8f5 0%, #f5f9f6 100%);
+}
+
+body.theme-easter {
+  background: linear-gradient(180deg, #faf8f5 0%, #faf5fc 100%);
+}
+
+body.theme-valentines {
+  background: linear-gradient(180deg, #faf8f5 0%, #fdf5f8 100%);
+}
+
+.seasonal-scene--christmas .seasonal-particle { background: rgba(255, 255, 255, 0.8); }
+.seasonal-scene--valentines .seasonal-particle { background: rgba(244, 143, 177, 0.6); }
+.seasonal-scene--easter .seasonal-particle { background: rgba(197, 185, 232, 0.55); }
+.seasonal-scene--new-year .seasonal-particle { background: rgba(255, 215, 0, 0.5); }
+
+/* ---- Mobile performance ---- */
+
+@media (max-width: 768px) {
+  .seasonal-scene--site .seasonal-floater--7,
+  .seasonal-scene--site .seasonal-floater--8 {
+    display: none;
+  }
+
+  .seasonal-particles .seasonal-particle:nth-child(n + 7) {
+    display: none;
+  }
+
+  .seasonal-scene--site .seasonal-floater {
+    opacity: 0.22;
+  }
+
+  .seasonal-lights .seasonal-light-bulb:nth-child(n + 10) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seasonal-floater,
+  .seasonal-effect,
+  .seasonal-particle,
+  .seasonal-light-bulb,
+  .seasonal-sale-badge {
+    animation: none !important;
+  }
+}

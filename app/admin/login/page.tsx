@@ -1,0 +1,133 @@
+"use client";
+
+import Image from "next/image";
+import { FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
+export default function AdminLoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        setError(data?.error ?? "Invalid email or password. Please try again.");
+        return;
+      }
+
+      const nextPath = searchParams.get("next");
+      const destination =
+        nextPath && nextPath.startsWith("/admin") && nextPath !== "/admin/login"
+          ? nextPath
+          : "/admin";
+
+      router.push(destination);
+      router.refresh();
+    } catch {
+      setError("Unable to sign in right now. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="admin-login">
+      <div className="admin-card admin-login__card">
+        <div className="admin-login__brand">
+          <Image
+            src="/logo.jpg"
+            alt="Grooming Lounge"
+            width={72}
+            height={72}
+            className="admin-login__logo"
+            priority
+          />
+          <p className="admin-login__eyebrow">Grooming Lounge</p>
+          <h1 className="admin-login__title">Administrator Login</h1>
+          <p className="admin-login__desc">
+            Sign in to manage photos, staff, themes, and announcements.
+          </p>
+        </div>
+
+        <form className="admin-form" onSubmit={handleSubmit} noValidate>
+          <label>
+            Email
+            <input
+              type="email"
+              name="email"
+              autoComplete="username"
+              placeholder="admin@groominglounge.com"
+              required
+              disabled={loading}
+            />
+          </label>
+
+          <label>
+            Password
+            <span className="admin-login__password-field">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                required
+                minLength={6}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className="admin-login__toggle"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                disabled={loading}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </span>
+          </label>
+
+          {error ? (
+            <p className="form-error admin-login__error" role="alert">
+              {error}
+            </p>
+          ) : null}
+
+          <button className="btn btn--primary btn--full admin-login__submit" type="submit" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="admin-login__spinner" aria-hidden="true" />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
