@@ -19,8 +19,7 @@ Default credentials (change in `.env` before going live):
 
 | Field | Value |
 |-------|-------|
-| Email | `admin@groominglounge.com` |
-| Password | `GroomingLounge2026!` |
+
 
 Set these in `.env`:
 
