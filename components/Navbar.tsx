@@ -38,19 +38,7 @@ export default function Navbar() {
               Grooming Lounge<span className="brand-sub">Barbershop &amp; Salon</span>
             </span>
           </Link>
-          <button
-            className="nav-toggle"
-            id="nav-toggle"
-            type="button"
-            aria-label="Toggle navigation"
-            aria-expanded="false"
-            aria-controls="main-nav"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-          <nav className="navbar__nav" id="main-nav">
+          <nav className="navbar__nav" id="main-nav" aria-label="Main navigation">
             <ul className="navbar__list">
               {navItems.map((item) => (
                 <li key={item.id}>
