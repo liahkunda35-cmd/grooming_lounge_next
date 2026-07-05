@@ -1,12 +1,27 @@
 import type { GalleryItem } from "@prisma/client";
+import { OptimizedPicture } from "@/components/OptimizedImage";
+
+const GALLERY_IMAGE_SIZES =
+  "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px";
+
+function BrandLogoBadge() {
+  return (
+    <span className="gallery__brand-logo" aria-hidden="true">
+      <OptimizedPicture
+        src="/logo.jpg"
+        alt=""
+        width={28}
+        height={28}
+        sizes="28px"
+        loading="lazy"
+      />
+    </span>
+  );
+}
 
 function GalleryBadge({ type }: { type: string | null }) {
   if (type === "logo") {
-    return (
-      <span className="gallery__brand-logo" aria-hidden="true">
-        <img src="/logo.jpg" alt="" />
-      </span>
-    );
+    return <BrandLogoBadge />;
   }
   if (type === "inspo") {
     return (
@@ -41,13 +56,13 @@ export function GalleryMediaItem({ item }: { item: GalleryItem }) {
       data-lightbox={item.mediaUrl}
       data-caption={caption}
     >
-      <img
+      <OptimizedPicture
         src={item.mediaUrl}
         alt={item.altText || caption}
+        fill
+        sizes={GALLERY_IMAGE_SIZES}
+        className="gallery__media-image"
         loading="lazy"
-        decoding="async"
-        width={400}
-        height={500}
       />
       <GalleryBadge type={item.badgeType} />
       {item.overlayText ? (

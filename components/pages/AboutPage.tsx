@@ -1,5 +1,9 @@
 import type { AboutImagesState } from "@/lib/about-images";
 import { getAboutImageUrl } from "@/lib/about-images";
+import { OptimizedPicture } from "@/components/OptimizedImage";
+
+const ABOUT_IMAGE_SIZES = "(max-width: 768px) 100vw, 50vw";
+const BRANCH_IMAGE_SIZES = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px";
 
 export default function AboutPage({ images }: { images: AboutImagesState }) {
   return (
@@ -25,11 +29,26 @@ export default function AboutPage({ images }: { images: AboutImagesState }) {
                 <div className="about__image reveal reveal--fade-left">
                   <div className="about__image-stack">
                     <div className="about__image-frame">
-                      <img src={getAboutImageUrl(images, "story_primary")} alt="Grooming Lounge barbershop and salon interior" loading="lazy" decoding="async" />
+                      <OptimizedPicture
+                        src={getAboutImageUrl(images, "story_primary")}
+                        alt="Grooming Lounge barbershop and salon interior"
+                        width={800}
+                        height={600}
+                        sizes={ABOUT_IMAGE_SIZES}
+                        className="about__story-image"
+                        loading="lazy"
+                      />
                       <span className="about__image-accent" aria-hidden="true">✂</span>
                     </div>
                     <div className="about__image-frame about__image-frame--secondary">
-                      <img src={getAboutImageUrl(images, "story_secondary")} alt="Grooming Lounge premium atmosphere" loading="lazy" decoding="async" />
+                      <OptimizedPicture
+                        src={getAboutImageUrl(images, "story_secondary")}
+                        alt="Grooming Lounge premium atmosphere"
+                        width={800}
+                        height={500}
+                        sizes={ABOUT_IMAGE_SIZES}
+                        loading="lazy"
+                      />
                     </div>
                   </div>
                   <div className="about__float-icons" aria-hidden="true">
@@ -83,7 +102,14 @@ export default function AboutPage({ images }: { images: AboutImagesState }) {
                 <div className="branches__grid">
                   <article className="branch-card reveal reveal--fade-up">
                     <div className="branch-card__image">
-                      <img src={getAboutImageUrl(images, "branch_munaro")} alt="Grooming Lounge Munaro branch exterior" loading="lazy" decoding="async" width="800" height="520" />
+                      <OptimizedPicture
+                        src={getAboutImageUrl(images, "branch_munaro")}
+                        alt="Grooming Lounge Munaro branch exterior"
+                        width={800}
+                        height={520}
+                        sizes={BRANCH_IMAGE_SIZES}
+                        loading="lazy"
+                      />
                     </div>
                     <div className="branch-card__body">
                       <h3 className="branch-card__title">Munaro Branch</h3>
@@ -112,7 +138,14 @@ export default function AboutPage({ images }: { images: AboutImagesState }) {
         
                   <article className="branch-card branch-card--ibex reveal reveal--fade-up">
                     <div className="branch-card__image">
-                      <img src={getAboutImageUrl(images, "branch_ibex")} alt="Grooming Lounge Ibex Hub branch exterior" loading="lazy" decoding="async" width="800" height="520" />
+                      <OptimizedPicture
+                        src={getAboutImageUrl(images, "branch_ibex")}
+                        alt="Grooming Lounge Ibex Hub branch exterior"
+                        width={800}
+                        height={520}
+                        sizes={BRANCH_IMAGE_SIZES}
+                        loading="lazy"
+                      />
                     </div>
                     <div className="branch-card__body">
                       <p className="branch-card__brand">Grooming Lounge Barbershop &amp; Salon</p>

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { PREMIUM_IMAGE_QUALITY } from "@/components/OptimizedImage";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -64,6 +65,8 @@ export default function AdminLoginPage() {
             width={72}
             height={72}
             className="admin-login__logo"
+            sizes="72px"
+            quality={PREMIUM_IMAGE_QUALITY}
             priority
           />
           <p className="admin-login__eyebrow">Grooming Lounge</p>

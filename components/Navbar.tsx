@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const navItems = [
   { href: "/", label: "Home", id: "home" },
@@ -24,13 +25,14 @@ export default function Navbar() {
       <div className="container navbar__wrap">
         <div className="navbar__inner">
           <Link href="/" className="navbar__logo" aria-label="Grooming Lounge Home">
-            <img
+            <OptimizedImage
               src="/logo.jpg"
               alt=""
               className="navbar__logo-img"
               width={44}
               height={44}
-              fetchPriority={pathname === "/" ? "high" : undefined}
+              sizes="44px"
+              priority={pathname === "/"}
             />
             <span className="navbar__logo-text brand-name">
               Grooming Lounge<span className="brand-sub">Barbershop &amp; Salon</span>

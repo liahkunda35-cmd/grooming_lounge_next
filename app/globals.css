@@ -987,10 +987,12 @@ button {
 .gallery__item--tall { grid-row: span 2; }
 .gallery__item--wide { grid-column: span 2; }
 
-.gallery__item img {
+.gallery__item img,
+.gallery__media-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 0.6s ease;
 }
 
@@ -1019,6 +1021,7 @@ button {
 }
 
 .gallery__item:hover img,
+.gallery__item:hover .gallery__media-image,
 .gallery__item:hover video {
   transform: scale(1.08);
 }
@@ -1329,10 +1332,13 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
   object-fit: cover;
 }
 
-.about__image img {
+.about__image img,
+.about__story-image {
   width: 100%;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  height: auto;
+  display: block;
+  object-fit: cover;
+  object-position: center;
 }
 
 .about__heading {
@@ -1617,10 +1623,12 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
   overflow: hidden;
 }
 
-.contact__hero-image img {
+.contact__hero-image img,
+.contact__hero-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
 .contact__hero-overlay {
@@ -2660,6 +2668,7 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
 }
 
 .category-gallery .gallery__item img,
+.category-gallery .gallery__item .gallery__media-image,
 .category-gallery .gallery__item video {
   width: 100%;
   height: 100%;

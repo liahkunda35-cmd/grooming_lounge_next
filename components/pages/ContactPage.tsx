@@ -1,3 +1,5 @@
+import { OptimizedPicture } from "@/components/OptimizedImage";
+
 export default function ContactPage() {
   return (
     <>
@@ -49,7 +51,14 @@ export default function ContactPage() {
                   <div className="contact__map reveal reveal--fade-right">
                     <div className="contact__map-card">
                       <div className="contact__hero-image">
-                        <img src="/Screenshot_20260613_150540_Lite.jpg" alt="Grooming Lounge modern salon and barbershop interior" loading="lazy" decoding="async" />
+                        <OptimizedPicture
+                          src="/Screenshot_20260613_150540_Lite.jpg"
+                          alt="Grooming Lounge modern salon and barbershop interior"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          className="contact__hero-photo"
+                          loading="lazy"
+                        />
                         <div className="contact__hero-overlay">
                           <span className="contact__hero-label">Premium Grooming Space</span>
                         </div>

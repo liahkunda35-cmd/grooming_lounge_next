@@ -1,3 +1,4 @@
+import OptimizedImage from "@/components/OptimizedImage";
 import SeasonalHomeAccent from "@/components/SeasonalHomeAccent";
 
 export default function HomePage({ heroImageUrl }: { heroImageUrl: string }) {
@@ -6,12 +7,14 @@ export default function HomePage({ heroImageUrl }: { heroImageUrl: string }) {
       <main>
         <section className="hero hero--image hero--enhanced" id="hero">
               <SeasonalHomeAccent />
-              <img                className="hero__bg hero__bg-img"
+              <OptimizedImage
+                className="hero__bg hero__bg-img"
                 id="hero-bg"
                 src={heroImageUrl}
                 alt="Grooming Lounge premium atmosphere"
-                fetchPriority="high"
-                decoding="async"
+                fill
+                sizes="100vw"
+                priority
               />
               <div className="hero__overlay"></div>
               <div className="hero__deco" aria-hidden="true">
