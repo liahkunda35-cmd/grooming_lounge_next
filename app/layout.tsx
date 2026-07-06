@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter, Playfair_Display } from "next/font/google";
 import SiteLayout from "@/components/SiteLayout";
 import { BodyPageAttribute } from "@/components/BodyPageAttribute";
 import "./globals.css";
+import "./responsive.css";
 import "./theme-decorations.css";
 import "./seasonal-realistic.css";
 import "./seasonal-premium.css";

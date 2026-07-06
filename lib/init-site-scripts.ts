@@ -61,7 +61,38 @@ const lightboxInspoBadge = document.getElementById('lightbox-inspo-badge');
 let galleryItems = document.querySelectorAll('.gallery__item[data-lightbox]');
 let lightboxIndex = 0;
 let lightboxSources = [];
+const lightboxPreloadCache = new Map();
 const counters = document.querySelectorAll('.counter');
+
+function getGalleryItemImageSrc(item) {
+  const img = item.querySelector('img');
+  if (img?.currentSrc) return img.currentSrc;
+  if (img?.src) return img.src;
+  return assetPath(item.dataset.lightbox || '');
+}
+
+function preloadLightboxImage(src) {
+  const resolved = assetPath(src);
+  if (!resolved) return Promise.resolve(resolved);
+  if (lightboxPreloadCache.has(resolved)) return lightboxPreloadCache.get(resolved);
+
+  const promise = new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(resolved);
+    img.onerror = () => resolve(resolved);
+    img.src = resolved;
+  });
+  lightboxPreloadCache.set(resolved, promise);
+  return promise;
+}
+
+function preloadAdjacentLightboxImages(index) {
+  if (lightboxSources.length < 2) return;
+  const prev = lightboxSources[(index - 1 + lightboxSources.length) % lightboxSources.length];
+  const next = lightboxSources[(index + 1) % lightboxSources.length];
+  preloadLightboxImage(prev.src);
+  preloadLightboxImage(next.src);
+}
 
 /* ============================================
    Page Load Transition
@@ -80,9 +111,11 @@ function closeMobileNav() {
 }
 
 function toggleMobileNav() {
+  if (!nav || !navToggle) return;
   const isOpen = nav.classList.toggle('active');
   navToggle.classList.toggle('active', isOpen);
   navToggle.setAttribute('aria-expanded', String(isOpen));
+  navToggle.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
 }
 
   on(navToggle, 'click', toggleMobileNav);
@@ -210,7 +243,8 @@ function buildLightboxSources(scopeGallery) {
     ? scopeGallery.querySelectorAll('.gallery__item[data-lightbox]')
     : document.querySelectorAll('.service-panel:not([hidden]) .gallery__item[data-lightbox], .gallery__item[data-lightbox]');
   lightboxSources = Array.from(items).map((item) => ({
-    src: assetPath(item.dataset.lightbox || ''),
+    src: getGalleryItemImageSrc(item),
+    fallbackSrc: assetPath(item.dataset.lightbox || ''),
     caption: item.dataset.caption || '',
     badge: item.querySelector('.gallery__brand-logo') ? 'logo' : item.querySelector('.gallery__inspo-badge') ? 'inspo' : null,
   }));
@@ -228,14 +262,6 @@ function updateLightboxBadge() {
   }
 }
 
-function showLightboxAt(index) {
-  if (!lightboxSources.length) return;
-  lightboxIndex = (index + lightboxSources.length) % lightboxSources.length;
-  const current = lightboxSources[lightboxIndex];
-  openLightbox(current.src, current.caption, false);
-  updateLightboxNav();
-}
-
 function updateLightboxNav() {
   const hasMultiple = lightboxSources.length > 1;
   if (lightboxPrev) {
@@ -248,23 +274,72 @@ function updateLightboxNav() {
   }
 }
 
+function showLightboxAt(index) {
+  if (!lightboxSources.length) return;
+  lightboxIndex = (index + lightboxSources.length) % lightboxSources.length;
+  const current = lightboxSources[lightboxIndex];
+  updateLightboxBadge();
+  updateLightboxNav();
+  setLightboxImage(current.src, current.caption).then(() => {
+    preloadAdjacentLightboxImages(lightboxIndex);
+  });
+}
+
+function setLightboxImage(src, caption) {
+  if (!lightboxImg) return Promise.resolve();
+
+  const resolved = assetPath(src);
+  lightboxImg.classList.add('lightbox__img--loading');
+  if (lightboxCaption) lightboxCaption.textContent = '';
+
+  return preloadLightboxImage(resolved).then((loadedSrc) => {
+    return new Promise((resolve) => {
+      const onReady = () => {
+        lightboxImg.removeEventListener('load', onReady);
+        lightboxImg.removeEventListener('error', onReady);
+        lightboxImg.classList.remove('lightbox__img--loading');
+        if (lightboxCaption) lightboxCaption.textContent = caption || '';
+        resolve();
+      };
+
+      if (lightboxImg.src === loadedSrc && lightboxImg.complete && lightboxImg.naturalWidth > 0) {
+        onReady();
+        return;
+      }
+
+      lightboxImg.addEventListener('load', onReady);
+      lightboxImg.addEventListener('error', onReady);
+      lightboxImg.src = loadedSrc;
+      lightboxImg.alt = caption || 'Gallery image';
+    });
+  });
+}
+
 function openLightbox(src, caption, updateIndex = true, scopeGallery = null) {
   if (!lightbox || !lightboxImg) return;
 
   if (updateIndex) {
     buildLightboxSources(scopeGallery);
-    lightboxIndex = lightboxSources.findIndex((item) => item.src === src);
+    const resolved = assetPath(src);
+    lightboxIndex = lightboxSources.findIndex(
+      (item) => item.src === resolved || item.fallbackSrc === resolved || item.src === src
+    );
     if (lightboxIndex < 0) lightboxIndex = 0;
   }
 
-  lightboxImg.src = assetPath(src);
-  lightboxImg.alt = caption || 'Gallery image';
-  if (lightboxCaption) lightboxCaption.textContent = caption || '';
-  updateLightboxBadge();
+  const current = lightboxSources[lightboxIndex];
+  const imageSrc = current?.src || src;
+  const imageCaption = caption || current?.caption || '';
+
   lightbox.removeAttribute('hidden');
   lightbox.classList.add('active');
   document.body.style.overflow = 'hidden';
+  updateLightboxBadge();
   updateLightboxNav();
+
+  setLightboxImage(imageSrc, imageCaption).then(() => {
+    preloadAdjacentLightboxImages(lightboxIndex);
+  });
 }
 
 function closeLightbox() {
@@ -284,7 +359,10 @@ function bindGalleryItems() {
     item.dataset.lightboxBound = 'true';
     on(item, 'click', () => {
       const scopeGallery = item.closest('.category-gallery');
-      openLightbox(item.dataset.lightbox, item.dataset.caption, true, scopeGallery);
+      openLightbox(getGalleryItemImageSrc(item), item.dataset.caption, true, scopeGallery);
+    });
+    on(item, 'pointerenter', () => {
+      preloadLightboxImage(getGalleryItemImageSrc(item));
     });
   });
 }
