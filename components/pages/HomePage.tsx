@@ -15,6 +15,7 @@ export default function HomePage({ heroImageUrl }: { heroImageUrl: string }) {
                 fill
                 sizes="100vw"
                 priority
+                style={{ objectFit: "cover", objectPosition: "center center" }}
               />
               <div className="hero__overlay"></div>
               <div className="hero__deco" aria-hidden="true">
