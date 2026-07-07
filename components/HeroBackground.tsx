@@ -1,5 +1,5 @@
 /**
- * Hero background — separate mobile/desktop images, full image visible (no crop).
+ * Homepage hero — mobile/desktop backgrounds, edge-to-edge cover fill.
  */
 const MOBILE_HERO_SRC = "/mobile-background.png";
 const DESKTOP_HERO_SRC = "/pc-background.png";
