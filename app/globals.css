@@ -454,14 +454,19 @@ button {
   z-index: 0;
   overflow: hidden;
   background-color: #2b2523;
-  background-size: cover;
+  background-image: url('/pc-background.png');
+  background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
 }
 
 .hero__media .hero__bg-img {
-  object-fit: cover;
+  object-fit: contain;
   object-position: center center;
+}
+
+.hero__bg-img--mobile {
+  display: none;
 }
 
 .hero--enhanced .hero__overlay {
@@ -566,7 +571,7 @@ button {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center center;
   pointer-events: none;
   user-select: none;
@@ -1381,6 +1386,21 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
 
 .about__image-frame--secondary img {
   aspect-ratio: 16 / 10;
+}
+
+@media (min-width: 992px) {
+  .about-section .about__image img,
+  .about-section .about__image .about__story-image,
+  .about-section .about__image-frame--secondary img {
+    object-fit: contain;
+    object-position: center center;
+    height: auto;
+    width: 100%;
+  }
+
+  .about-section .about__image-frame--secondary img {
+    aspect-ratio: auto;
+  }
 }
 
 .about__heading {

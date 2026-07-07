@@ -48,7 +48,7 @@ export default function BookPage() {
                       id="phone"
                       name="phone"
                       inputMode="numeric"
-                      placeholder="979835855"
+                      placeholder="761000376"
                       autoComplete="tel-national"
                       maxLength={9}
                     />

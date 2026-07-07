@@ -1,13 +1,13 @@
 import HeroBackground from "@/components/HeroBackground";
 import SeasonalHomeAccent from "@/components/SeasonalHomeAccent";
 
-export default function HomePage({ heroImageUrl }: { heroImageUrl: string }) {
+export default function HomePage() {
   return (
     <>
       <main>
         <section className="hero hero--image hero--enhanced" id="hero">
               <SeasonalHomeAccent />
-              <HeroBackground src={heroImageUrl} />
+              <HeroBackground />
               <div className="hero__overlay"></div>
               <div className="hero__deco" aria-hidden="true">
                 <span className="hero__float hero__float--1">✂</span>
