@@ -469,6 +469,17 @@ button {
   display: none;
 }
 
+@media (min-width: 992px) {
+  .hero.hero--enhanced .hero__media {
+    background-image: none;
+  }
+
+  .hero.hero--enhanced .hero__bg,
+  .hero.hero--enhanced .hero__bg-img {
+    background-image: none;
+  }
+}
+
 .hero--enhanced .hero__overlay {
   background: linear-gradient(135deg, rgba(20, 18, 16, 0.78) 0%, rgba(43, 43, 43, 0.62) 45%, rgba(123, 94, 87, 0.5) 100%);
 }
@@ -2876,12 +2887,18 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
 
 .price-modal__close {
   position: absolute;
-  top: 1rem;
-  right: 1.25rem;
+  top: clamp(0.5rem, 2vw, 1rem);
+  right: clamp(0.65rem, 2.5vw, 1.25rem);
   font-size: 2rem;
   color: var(--text-muted);
   line-height: 1;
-  z-index: 2;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.25rem;
   transition: color var(--transition);
 }
 
@@ -3390,8 +3407,7 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
 
 .price-modal__header,
 .price-cards,
-.price-modal__content,
-.price-modal__close {
+.price-modal__content {
   position: relative;
   z-index: 1;
 }

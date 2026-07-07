@@ -584,9 +584,11 @@
   }
 
   .price-modal__close {
-    top: 0.65rem;
-    right: 0.85rem;
+    top: max(0.65rem, env(safe-area-inset-top, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
     font-size: 1.75rem;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .contact__cards {
