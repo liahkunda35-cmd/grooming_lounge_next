@@ -1353,9 +1353,12 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
   align-items: start;
 }
 
+.about-section .about__inner {
+  align-items: center;
+}
+
 .about__image,
 .about__content {
-  align-self: start;
   min-width: 0;
 }
 
@@ -1402,7 +1405,17 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
   border-bottom: 1px solid var(--border);
 }
 
-.about__stats li { text-align: center; }
+.about-section .about__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem 1.5rem;
+  width: 100%;
+}
+
+.about__stats li {
+  text-align: center;
+  min-width: 0;
+}
 
 /* ============================================
    Branches

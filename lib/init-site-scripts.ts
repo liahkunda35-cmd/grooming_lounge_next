@@ -710,7 +710,7 @@ async function ensureServiceOptionsIfNeeded() {
 function resetServiceSelect() {
   const serviceSelect = document.getElementById('service');
   if (!serviceSelect) return;
-  serviceSelect.innerHTML = '<option value="">Select a specialist below first</option>';
+  serviceSelect.innerHTML = '<option value="">Select a service</option>';
   serviceSelect.value = '';
 }
 
@@ -821,10 +821,9 @@ function selectSpecialist(staffId) {
 
 function clearSpecialistSelection() {
   selectedSpecialist = null;
-  updateStaffCardStates();
   setSpecialistError('');
   resetServiceSelect();
-  updateBookingSummary();
+  populateAllServiceOptions();
 }
 
 function saveAppointmentToStorage(appointment) {
@@ -845,7 +844,7 @@ function saveAppointmentToStorage(appointment) {
 function initSpecialistBooking() {
   if (!document.getElementById('booking-form')) return;
 
-  loadDynamicStaffCards();
+  populateAllServiceOptions();
 
   const serviceSelect = document.getElementById('service');
   on(serviceSelect, 'focus', ensureServiceOptionsIfNeeded);

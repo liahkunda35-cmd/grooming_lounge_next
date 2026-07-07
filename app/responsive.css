@@ -248,6 +248,14 @@
     margin-top: 0;
   }
 
+  .about-section .about__stats {
+    display: flex;
+    grid-template-columns: unset;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: auto;
+  }
+
   .gallery__grid {
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: 180px;
@@ -751,7 +759,7 @@
     padding: calc(var(--nav-height) + 2rem) 0 2rem;
   }
 
-  .about__stats {
+  .about-section .about__stats {
     justify-content: center;
   }
 

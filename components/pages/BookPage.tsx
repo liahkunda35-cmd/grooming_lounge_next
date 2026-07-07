@@ -61,7 +61,7 @@ export default function BookPage() {
                 <div className="form-group">
                   <label htmlFor="service">Service</label>
                   <select id="service" name="service">
-                    <option value="">Select a specialist below first</option>
+                    <option value="">Select a service</option>
                   </select>
                   <span className="form-error" id="service-error" role="alert"></span>
                 </div>
@@ -96,61 +96,6 @@ export default function BookPage() {
                 Submit Booking Request
               </button>
             </form>
-          </div>
-        </section>
-
-        <section
-          className="section section--ivory specialists-section reveal reveal--fade-up"
-          id="specialists-section"
-          aria-labelledby="specialists-title"
-        >
-          <div className="container">
-            <header className="specialists-section__header">
-              <span className="section__label">Our Team</span>
-              <h2 className="section__title section__title--luxury" id="specialists-title">
-                Choose Your Specialist
-              </h2>
-              <p className="section__desc">
-                Select your preferred barber or hairdresser. Available services will update based on your
-                choice.
-              </p>
-            </header>
-
-            <aside className="booking-summary" id="booking-summary" aria-live="polite" hidden={true}>
-              <h3 className="booking-summary__title">Booking Summary</h3>
-              <dl className="booking-summary__list">
-                <div className="booking-summary__item">
-                  <dt>Specialist</dt>
-                  <dd id="summary-specialist">—</dd>
-                </div>
-                <div className="booking-summary__item">
-                  <dt>Service</dt>
-                  <dd id="summary-service">—</dd>
-                </div>
-                <div className="booking-summary__item">
-                  <dt>Date &amp; Time</dt>
-                  <dd id="summary-datetime">—</dd>
-                </div>
-                <div className="booking-summary__item">
-                  <dt>Client</dt>
-                  <dd id="summary-client">—</dd>
-                </div>
-              </dl>
-            </aside>
-
-            <p className="form-error specialists-section__error" id="specialist-error" role="alert"></p>
-
-            <div className="specialists-category">
-              <h3 className="specialists-category__title">{String.fromCodePoint(0x1f488)} Barbers</h3>
-              <div className="staff-grid" id="barbers-grid" role="list"></div>
-            </div>
-
-            <div className="specialists-category">
-              <h3 className="specialists-category__title">
-                {String.fromCodePoint(0x1f487)} Hairdressers
-              </h3>
-              <div className="staff-grid" id="hairdressers-grid" role="list"></div>
-            </div>
           </div>
         </section>
 

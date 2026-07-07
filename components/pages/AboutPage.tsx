@@ -113,6 +113,7 @@ export default function AboutPage({ images }: { images: AboutImagesState }) {
                     </div>
                     <div className="branch-card__body">
                       <h3 className="branch-card__title">Munaro Branch</h3>
+                      <p className="branch-card__address">Munaro Plaza, Lusaka, Zambia</p>
                       <h4 className="branch-card__subtitle">Services Available</h4>
                       <ul className="branch-card__list">
                         <li>Barbershop Only</li>
@@ -124,7 +125,7 @@ export default function AboutPage({ images }: { images: AboutImagesState }) {
                       <div className="branch-card__map contact__map-frame">
                         <iframe
                           title="Grooming Lounge Munaro branch on Google Maps"
-                          src="https://maps.google.com/maps?q=Grooming+Lounge+Barbershop+Munaro,+Lusaka,+Zambia&amp;t=&amp;z=15&amp;ie=UTF8&amp;iwloc=&amp;output=embed"
+                          src="https://maps.google.com/maps?q=Munaro+Plaza,+Lusaka,+Zambia&amp;t=&amp;z=15&amp;ie=UTF8&amp;iwloc=&amp;output=embed"
                           width="100%"
                           height="320"
                           style={{ border: 0 }}
