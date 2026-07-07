@@ -31,7 +31,7 @@ export default function Footer() {
         </nav>
         <div className="footer__social">
           <a
-            href="https://www.facebook.com/61554666937921"
+            href="https://www.facebook.com/people/Grooming-Lounge-Barber-Shop-Salon/61554666937921/"
             className="social-icon social-icon--facebook social-icon--sm"
             target="_blank"
             rel="noopener noreferrer"
@@ -53,7 +53,7 @@ export default function Footer() {
             </svg>
           </a>
           <a
-            href="https://www.tiktok.com/@groomingloungebarbershop"
+            href="https://www.tiktok.com/@groominglounge21"
             className="social-icon social-icon--tiktok social-icon--sm"
             target="_blank"
             rel="noopener noreferrer"

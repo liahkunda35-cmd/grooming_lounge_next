@@ -453,6 +453,10 @@ button {
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  background-color: #2b2523;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .hero__media .hero__bg-img {
@@ -641,6 +645,7 @@ button {
 .hero__overlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(135deg, rgba(43, 43, 43, 0.72) 0%, rgba(123, 94, 87, 0.55) 50%, rgba(43, 43, 43, 0.65) 100%);
 }
 
@@ -1664,6 +1669,10 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
   position: relative;
   height: 220px;
   overflow: hidden;
+  background-color: #2b2523;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .contact__hero-image img,
