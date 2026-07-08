@@ -35,12 +35,11 @@ export const GALLERY_CATALOG: GalleryCatalogCategory[] = [
       { mediaUrl: "/haircut10.jpg", caption: "Adult Haircut", altText: "Adult haircut style", overlayText: "Sharp Look", badgeType: "inspo" },
       { mediaUrl: "/haircut25.jpg", caption: "Adult Haircut", altText: "Adult haircut", overlayText: "Modern Cut", badgeType: "inspo" },
       { mediaUrl: "/caucasian.jpg", caption: "Caucasian Haircut", altText: "Caucasian haircut", overlayText: "Caucasian Cut" },
-      // Newly added adult haircut showcase images (must match files in /public)
-      { mediaUrl: "/IMG-20260703-WA0008.jpg", caption: "Adult Haircut", altText: "Adult haircut style", overlayText: "Fresh Cut", badgeType: "inspo" },
-      { mediaUrl: "/IMG-20260703-WA0011.jpg", caption: "Adult Haircut", altText: "Adult haircut side profile", overlayText: "Sharp Look", badgeType: "inspo" },
-      { mediaUrl: "/IMG-20260703-WA0010.jpg", caption: "Adult Haircut", altText: "Adult haircut back view", overlayText: "Tapered Neckline", badgeType: "inspo" },
-      { mediaUrl: "/IMG-20260703-WA0013.jpg", caption: "Adult Haircut", altText: "Adult haircut back fade", overlayText: "Smooth Fade", badgeType: "inspo" },
-      { mediaUrl: "/IMG-20260703-WA0015.jpg", caption: "Adult Haircut", altText: "Adult haircut side fade", overlayText: "Clean Fade", badgeType: "inspo" },
+      { mediaUrl: "/IMG-20260703-WA0008.jpg", caption: "Adult Haircut", altText: "Adult haircut style" },
+      { mediaUrl: "/IMG-20260703-WA0011.jpg", caption: "Adult Haircut", altText: "Adult haircut side profile" },
+      { mediaUrl: "/IMG-20260703-WA0010.jpg", caption: "Adult Haircut", altText: "Adult haircut back view" },
+      { mediaUrl: "/IMG-20260703-WA0013.jpg", caption: "Adult Haircut", altText: "Adult haircut back fade" },
+      { mediaUrl: "/IMG-20260703-WA0015.jpg", caption: "Adult Haircut", altText: "Adult haircut side fade" },
     ],
   },
   {
@@ -62,6 +61,8 @@ export const GALLERY_CATALOG: GalleryCatalogCategory[] = [
     section: "barbershop",
     sortOrder: 3,
     items: [
+      { mediaUrl: "/womencut1.jpg", caption: "Women's Cut", altText: "Women's blonde tapered cut (back view)", badgeType: "logo" },
+      { mediaUrl: "/womencut2.jpg", caption: "Women's Cut", altText: "Women's blonde tapered cut (side view)", badgeType: "logo" },
       { mediaUrl: "/womancut1.jpg", caption: "Women's Cut", altText: "Women's haircut", overlayText: "Women's Style", badgeType: "inspo" },
       { mediaUrl: "/womancut2.jpg", caption: "Women's Cut", altText: "Women's haircut", overlayText: "Elegant Cut", badgeType: "inspo" },
       { mediaUrl: "/womancut4.jpg", caption: "Women's Cut", altText: "Women's haircut", overlayText: "Chic Style", badgeType: "inspo" },
