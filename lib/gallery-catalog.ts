@@ -61,8 +61,8 @@ export const GALLERY_CATALOG: GalleryCatalogCategory[] = [
     section: "barbershop",
     sortOrder: 3,
     items: [
-      { mediaUrl: "/womencut1.jpg", caption: "Women's Cut", altText: "Women's blonde tapered cut (back view)", badgeType: "logo" },
-      { mediaUrl: "/womencut2.jpg", caption: "Women's Cut", altText: "Women's blonde tapered cut (side view)", badgeType: "logo" },
+      { mediaUrl: "/womencut1.jpg", caption: "Women's Cut", altText: "Women's blonde tapered cut (back view)" },
+      { mediaUrl: "/womencut2.jpg", caption: "Women's Cut", altText: "Women's blonde tapered cut (side view)" },
       { mediaUrl: "/womancut1.jpg", caption: "Women's Cut", altText: "Women's haircut", overlayText: "Women's Style", badgeType: "inspo" },
       { mediaUrl: "/womancut2.jpg", caption: "Women's Cut", altText: "Women's haircut", overlayText: "Elegant Cut", badgeType: "inspo" },
       { mediaUrl: "/womancut4.jpg", caption: "Women's Cut", altText: "Women's haircut", overlayText: "Chic Style", badgeType: "inspo" },
