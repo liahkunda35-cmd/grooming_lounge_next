@@ -35,6 +35,12 @@ export const GALLERY_CATALOG: GalleryCatalogCategory[] = [
       { mediaUrl: "/haircut10.jpg", caption: "Adult Haircut", altText: "Adult haircut style", overlayText: "Sharp Look", badgeType: "inspo" },
       { mediaUrl: "/haircut25.jpg", caption: "Adult Haircut", altText: "Adult haircut", overlayText: "Modern Cut", badgeType: "inspo" },
       { mediaUrl: "/caucasian.jpg", caption: "Caucasian Haircut", altText: "Caucasian haircut", overlayText: "Caucasian Cut" },
+      // New adult haircut showcase images
+      { mediaUrl: "/haircut_new1.png", caption: "Adult Haircut", altText: "Adult haircut side view", overlayText: "Clean Fade", badgeType: "inspo" },
+      { mediaUrl: "/haircut_new2.png", caption: "Adult Haircut", altText: "Adult haircut side profile", overlayText: "Sharp Line-Up", badgeType: "inspo" },
+      { mediaUrl: "/haircut_new3.png", caption: "Adult Haircut", altText: "Adult haircut back view", overlayText: "Tapered Neckline", badgeType: "inspo" },
+      { mediaUrl: "/haircut_new4.png", caption: "Adult Haircut", altText: "Adult haircut back fade", overlayText: "Smooth Fade", badgeType: "inspo" },
+      { mediaUrl: "/haircut_new5.png", caption: "Adult Haircut", altText: "Adult haircut side fade", overlayText: "Fresh Cut", badgeType: "inspo" },
     ],
   },
   {
@@ -61,6 +67,9 @@ export const GALLERY_CATALOG: GalleryCatalogCategory[] = [
       { mediaUrl: "/womancut4.jpg", caption: "Women's Cut", altText: "Women's haircut", overlayText: "Chic Style", badgeType: "inspo" },
       { mediaUrl: "/womancut5.jpg", caption: "Women's Cut", altText: "Women's haircut", overlayText: "Precision Cut", badgeType: "inspo" },
       { mediaUrl: "/womancut22.jpg", caption: "Women's Cut", altText: "Women's haircut", overlayText: "Women's Cut", badgeType: "inspo" },
+      // New women's haircut showcase images
+      { mediaUrl: "/womencut_new1.png", caption: "Women's Cut", altText: "Women's blonde tapered cut (back view)", overlayText: "Blonde Taper", badgeType: "inspo" },
+      { mediaUrl: "/womencut_new2.png", caption: "Women's Cut", altText: "Women's blonde tapered cut (side view)", overlayText: "Signature Style", badgeType: "inspo" },
     ],
   },
   {

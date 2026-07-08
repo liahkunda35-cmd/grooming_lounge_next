@@ -83,7 +83,7 @@ export default function AdminLoginPage() {
               type="email"
               name="email"
               autoComplete="username"
-              placeholder="admin@groominglounge.com"
+              placeholder="Enter your email"
               required
               disabled={loading}
             />

@@ -15,11 +15,7 @@ npm run dev
 
 ## Admin login
 
-Default credentials (change in `.env` before going live):
-
-| Field | Value |
-|-------|-------|
-
+Credentials are stored only in `.env` (never in source code).
 
 Set these in `.env`:
 
