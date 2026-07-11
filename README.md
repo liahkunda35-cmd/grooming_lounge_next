@@ -15,19 +15,18 @@ npm run dev
 
 ## Admin login
 
-Credentials come from env vars and are stored (hashed) in the database.
+Credentials are stored only in `.env` (never in source code).
 
-Set these in `.env` (local) and in Railway Variables (live):
+Set these in `.env`:
 
 ```
-ADMIN_EMAIL=admin@groominglounge.com
+ADMIN_EMAIL=your@email.com
 ADMIN_PASSWORD=your-secure-password
 SESSION_SECRET=a-long-random-secret-string
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/postgres?sslmode=require"
+DATABASE_URL="file:./dev.db"
 ```
 
-Use your **Supabase** (or Railway Postgres) connection string for `DATABASE_URL`.  
-On the live site, login uses `ADMIN_EMAIL` / `ADMIN_PASSWORD` from Railway — if you change the password in Variables, the next successful login setup will sync it automatically.
+After changing admin credentials, run `npm run db:seed` to update the admin user.
 
 ## What you can manage in admin
 
@@ -74,15 +73,8 @@ npm run db:setup     # Migrate + seed (first-time setup)
 - `public/uploads/` — Admin-uploaded photos and videos
 - `lib/` — Database, auth, gallery, and theme helpers
 
-## Production notes (Railway + Supabase)
+## Production notes
 
-1. In Supabase → **Project Settings → Database**, copy the **URI** connection string (use the pooler URI if offered).
-2. In Railway → your web service → **Variables**, set:
-   - `DATABASE_URL` = that Postgres URI (`?sslmode=require`)
-   - `ADMIN_EMAIL` = `admin@groominglounge.com`
-   - `ADMIN_PASSWORD` = your password (e.g. the one you set in Railway)
-   - `SESSION_SECRET` = a long random string
-3. Redeploy. Startup runs `prisma migrate deploy` (creates tables including `AdminUser`).
-4. Open `https://www.groomingloungebs.com/admin/login` and sign in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
-5. Optional: run `npm run db:seed` once in a Railway shell if you want gallery/staff seed data in Postgres (the public site already has static gallery fallbacks).
-6. Uploaded files in `public/uploads/` should be backed up or moved to cloud storage for production scale
+1. Change `ADMIN_PASSWORD` and `SESSION_SECRET` in production
+2. For hosting, keep the SQLite file persistent or switch to PostgreSQL
+3. Uploaded files in `public/uploads/` should be backed up or moved to cloud storage for production scale

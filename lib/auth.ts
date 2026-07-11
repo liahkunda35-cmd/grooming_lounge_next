@@ -48,45 +48,8 @@ export async function requireAdmin(): Promise<SessionPayload | null> {
   return getSession();
 }
 
-/**
- * Keep the AdminUser row in sync with ADMIN_EMAIL / ADMIN_PASSWORD env vars.
- * Railway/Supabase often never get a manual seed — without this, live login fails.
- */
-export async function ensureAdminFromEnv() {
-  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  const password = process.env.ADMIN_PASSWORD;
-  if (!email || !password) return;
-
-  const existing = await prisma.adminUser.findUnique({ where: { email } });
-  if (!existing) {
-    await prisma.adminUser.create({
-      data: {
-        email,
-        passwordHash: await hashPassword(password),
-        name: "Site Owner",
-      },
-    });
-    return;
-  }
-
-  const matchesEnv = await verifyPassword(password, existing.passwordHash);
-  if (!matchesEnv) {
-    await prisma.adminUser.update({
-      where: { email },
-      data: { passwordHash: await hashPassword(password) },
-    });
-  }
-}
-
 export async function authenticateAdmin(email: string, password: string) {
   const normalizedEmail = email.trim().toLowerCase();
-
-  try {
-    await ensureAdminFromEnv();
-  } catch (error) {
-    console.error("Failed to sync admin credentials from env:", error);
-  }
-
   const admin = await prisma.adminUser.findUnique({ where: { email: normalizedEmail } });
   if (!admin) return false;
   return verifyPassword(password, admin.passwordHash);
