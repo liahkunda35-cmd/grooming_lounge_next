@@ -2,7 +2,9 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import AdminThemeCardVisual from "@/components/AdminThemeCardVisual";
+import AdminModal from "@/components/admin/AdminModal";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPagedTable from "@/components/admin/AdminPagedTable";
 import { dispatchThemeUpdated } from "@/lib/theme-document";
 
 type Theme = {
@@ -50,8 +52,14 @@ export default function AdminThemesPage() {
   const [themes, setThemes] = useState<Theme[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [schedules, setSchedules] = useState<Record<string, { startsAt: string; endsAt: string }>>({});
-  const [edits, setEdits] = useState<Record<string, { announcement: string; accentColor: string }>>({});
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editing, setEditing] = useState<Theme | null>(null);
+  const [editForm, setEditForm] = useState({
+    announcement: "",
+    accentColor: "#b8860b",
+    startsAt: "",
+    endsAt: "",
+  });
   const [newTheme, setNewTheme] = useState({
     key: "",
     name: "",
@@ -74,28 +82,6 @@ export default function AdminThemesPage() {
       }
       const data: Theme[] = await response.json();
       setThemes(Array.isArray(data) ? data : []);
-      setSchedules(
-        Object.fromEntries(
-          (Array.isArray(data) ? data : []).map((theme) => [
-            theme.id,
-            { startsAt: toInputDate(theme.startsAt), endsAt: toInputDate(theme.endsAt) },
-          ])
-        )
-      );
-      setEdits(
-        Object.fromEntries(
-          (Array.isArray(data) ? data : []).map((theme) => {
-            const config = parseThemeConfig(theme.config);
-            return [
-              theme.id,
-              {
-                announcement: config.announcement ?? "",
-                accentColor: config.accentColor ?? "#b8860b",
-              },
-            ];
-          })
-        )
-      );
     } finally {
       setLoading(false);
     }
@@ -122,36 +108,6 @@ export default function AdminThemesPage() {
     }
   }
 
-  async function saveThemeSettings(theme: Theme) {
-    const edit = edits[theme.id];
-    if (!edit) return;
-
-    const existing = parseThemeConfig(theme.config);
-    const config: ThemeConfig = {
-      ...existing,
-      announcement: edit.announcement,
-      accentColor: edit.accentColor,
-    };
-
-    const response = await fetch("/api/admin/themes", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: theme.id,
-        config: JSON.stringify(config),
-      }),
-    });
-
-    if (response.ok) {
-      setMessage(`Settings saved for ${theme.name}.`);
-      loadThemes();
-      router.refresh();
-      dispatchThemeUpdated();
-    } else {
-      setMessage("Could not save theme settings.");
-    }
-  }
-
   async function deleteTheme(theme: Theme) {
     if (theme.key === "default") return;
     if (!window.confirm(`Delete "${theme.name}"? This cannot be undone.`)) return;
@@ -173,35 +129,59 @@ export default function AdminThemesPage() {
     }
   }
 
-  async function saveSchedule(theme: Theme) {
-    const schedule = schedules[theme.id];
-    const response = await fetch("/api/admin/themes", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: theme.id,
-        startsAt: schedule.startsAt || null,
-        endsAt: schedule.endsAt || null,
-      }),
-    });
-
-    if (response.ok) {
-      setMessage(`Schedule saved for ${theme.name}.`);
-      loadThemes();
-      router.refresh();
-    }
-  }
-
   async function deactivateAll() {
     const defaultTheme = themes.find((theme) => theme.key === "default");
     if (!defaultTheme) return;
     await activateTheme(defaultTheme);
     setMessage("Default theme restored.");
-    dispatchThemeUpdated();
   }
 
   function previewTheme(theme: Theme) {
     window.open(`/?previewTheme=${encodeURIComponent(theme.key)}`, "_blank", "noopener,noreferrer");
+  }
+
+  function openEdit(theme: Theme) {
+    const config = parseThemeConfig(theme.config);
+    setEditing(theme);
+    setEditForm({
+      announcement: config.announcement ?? "",
+      accentColor: config.accentColor ?? "#b8860b",
+      startsAt: toInputDate(theme.startsAt),
+      endsAt: toInputDate(theme.endsAt),
+    });
+  }
+
+  async function saveEdit(event: FormEvent) {
+    event.preventDefault();
+    if (!editing) return;
+
+    const existing = parseThemeConfig(editing.config);
+    const config: ThemeConfig = {
+      ...existing,
+      announcement: editForm.announcement,
+      accentColor: editForm.accentColor,
+    };
+
+    const response = await fetch("/api/admin/themes", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: editing.id,
+        config: JSON.stringify(config),
+        startsAt: editForm.startsAt || null,
+        endsAt: editForm.endsAt || null,
+      }),
+    });
+
+    if (response.ok) {
+      setMessage(`Settings saved for ${editing.name}.`);
+      setEditing(null);
+      loadThemes();
+      router.refresh();
+      dispatchThemeUpdated();
+    } else {
+      setMessage("Could not save theme settings.");
+    }
   }
 
   async function createTheme(event: FormEvent) {
@@ -236,6 +216,7 @@ export default function AdminThemesPage() {
     if (response.ok) {
       setMessage(`Theme "${newTheme.name}" created.`);
       setNewTheme({ key: "", name: "", announcement: "", accentColor: "#b8860b", decoIcons: "" });
+      setCreateOpen(false);
       loadThemes();
     } else {
       const error = await response.json();
@@ -245,147 +226,66 @@ export default function AdminThemesPage() {
 
   return (
     <div className="admin-grid">
-      <section className="admin-card">
-        <h1 className="section__title">Seasonal Themes</h1>
-        <p className="section__desc">
-          Activate seasonal decorations for your visitors. Only one theme is live at a time. Use
-          Preview to see a theme before activating it, or set start/end dates for automatic
-          scheduling.
-        </p>
-        {message ? <p className="form-success">{message}</p> : null}
+      <AdminPageHeader
+        title="Seasonal Themes"
+        description="Activate seasonal decorations for your visitors. Only one theme is live at a time."
+        message={message}
+        actionLabel="Create Theme"
+        onAction={() => setCreateOpen(true)}
+      >
         <button type="button" className="btn btn--outline" onClick={deactivateAll}>
           Use Default Theme
         </button>
-      </section>
-
-      {loading ? (
-        <section className="admin-card">
-          <p className="section__desc">Loading seasonal themes…</p>
-        </section>
-      ) : null}
-
-      <section className="admin-grid admin-grid--2">
-        {themes.map((theme) => {
-          const config = parseThemeConfig(theme.config);
-          const schedule = schedules[theme.id] ?? { startsAt: "", endsAt: "" };
-          const edit = edits[theme.id] ?? {
-            announcement: config.announcement ?? "",
-            accentColor: config.accentColor ?? "#b8860b",
-          };
-          const isLive = theme.isActive;
-
-          return (
-            <article
-              key={theme.id}
-              className={`admin-card admin-theme-card admin-theme-card--${theme.key}${
-                isLive ? " admin-theme-card--active" : ""
-              }`}
-            >
-              <AdminThemeCardVisual themeKey={theme.key} isActive={isLive} />
-              <div className="admin-theme-card__body">
-                <h2>{theme.name}</h2>
-                <p>{config.announcement || "Standard website appearance."}</p>
-                <p>
-                  Status: <strong>{isLive ? "Active" : "Inactive"}</strong>
-                </p>
-              <p className="admin-meta">
-                Schedule: {formatDate(theme.startsAt)} → {formatDate(theme.endsAt)}
-              </p>
-
-              {theme.key !== "default" ? (
-                <div className="admin-form admin-form--inline">
-                  <label>
-                    Banner message
-                    <input
-                      value={edit.announcement}
-                      onChange={(event) =>
-                        setEdits((current) => ({
-                          ...current,
-                          [theme.id]: { ...edit, announcement: event.target.value },
-                        }))
-                      }
-                    />
-                  </label>
-                  <label>
-                    Accent color
-                    <input
-                      type="color"
-                      value={edit.accentColor}
-                      onChange={(event) =>
-                        setEdits((current) => ({
-                          ...current,
-                          [theme.id]: { ...edit, accentColor: event.target.value },
-                        }))
-                      }
-                    />
-                  </label>
-                  <button type="button" className="btn btn--outline" onClick={() => saveThemeSettings(theme)}>
-                    Save Settings
-                  </button>
-                </div>
-              ) : null}
-
-              <div className="admin-form admin-form--inline">
-                <label>
-                  Start date
-                  <input
-                    type="date"
-                    value={schedule.startsAt}
-                    onChange={(event) =>
-                      setSchedules((current) => ({
-                        ...current,
-                        [theme.id]: { ...schedule, startsAt: event.target.value },
-                      }))
-                    }
-                  />
-                </label>
-                <label>
-                  End date
-                  <input
-                    type="date"
-                    value={schedule.endsAt}
-                    onChange={(event) =>
-                      setSchedules((current) => ({
-                        ...current,
-                        [theme.id]: { ...schedule, endsAt: event.target.value },
-                      }))
-                    }
-                  />
-                </label>
-              </div>
-
-              <div className="admin-actions">
-                <button type="button" className="btn btn--outline" onClick={() => saveSchedule(theme)}>
-                  Save Schedule
-                </button>
-                <button type="button" className="btn btn--outline" onClick={() => previewTheme(theme)}>
-                  Preview
-                </button>
-                {!isLive ? (
-                  <button type="button" className="btn btn--primary" onClick={() => activateTheme(theme)}>
-                    Activate {theme.name}
-                  </button>
-                ) : (
-                  <span className="section__label admin-theme-card__live-label">Currently live</span>
-                )}
-                {theme.key !== "default" ? (
-                  <button type="button" className="btn btn--outline" onClick={() => deleteTheme(theme)}>
-                    Delete
-                  </button>
-                ) : null}
-              </div>
-              </div>
-            </article>
-          );
-        })}
-      </section>
+      </AdminPageHeader>
 
       <section className="admin-card">
-        <h2>Create Custom Theme</h2>
-        <p className="section__desc">
-          Add a future seasonal event without editing code. Use a unique key such as{" "}
-          <code>summer-sale</code>.
-        </p>
+        {loading ? <p className="section__desc">Loading seasonal themes…</p> : null}
+        <AdminPagedTable
+          rows={themes}
+          rowKey={(row) => row.id}
+          emptyMessage="No themes found."
+          columns={[
+            { key: "name", header: "Theme", render: (theme) => theme.name },
+            {
+              key: "status",
+              header: "Status",
+              render: (theme) =>
+                theme.isActive ? <span className="admin-badge">Live</span> : "Inactive",
+            },
+            {
+              key: "schedule",
+              header: "Schedule",
+              render: (theme) => `${formatDate(theme.startsAt)} → ${formatDate(theme.endsAt)}`,
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              render: (theme) => (
+                <div className="admin-actions">
+                  <button type="button" className="btn btn--outline btn--sm" onClick={() => previewTheme(theme)}>
+                    Preview
+                  </button>
+                  <button type="button" className="btn btn--outline btn--sm" onClick={() => openEdit(theme)}>
+                    Edit
+                  </button>
+                  {!theme.isActive ? (
+                    <button type="button" className="btn btn--primary btn--sm" onClick={() => activateTheme(theme)}>
+                      Activate
+                    </button>
+                  ) : null}
+                  {theme.key !== "default" ? (
+                    <button type="button" className="admin-btn-danger" onClick={() => deleteTheme(theme)}>
+                      Delete
+                    </button>
+                  ) : null}
+                </div>
+              ),
+            },
+          ]}
+        />
+      </section>
+
+      <AdminModal open={createOpen} title="Create Custom Theme" onClose={() => setCreateOpen(false)}>
         <form className="admin-form" onSubmit={createTheme}>
           <label>
             Theme key
@@ -427,7 +327,7 @@ export default function AdminThemesPage() {
             />
           </label>
           <label>
-            Optional decorations (comma-separated, leave empty for reference-based visuals only)
+            Optional decorations (comma-separated)
             <input
               value={newTheme.decoIcons}
               onChange={(event) =>
@@ -436,11 +336,80 @@ export default function AdminThemesPage() {
               placeholder="Leave empty unless you need custom icons"
             />
           </label>
-          <button type="submit" className="btn btn--primary">
-            Create Theme
-          </button>
+          <div className="admin-actions">
+            <button type="submit" className="btn btn--primary">
+              Create Theme
+            </button>
+            <button type="button" className="btn btn--outline" onClick={() => setCreateOpen(false)}>
+              Cancel
+            </button>
+          </div>
         </form>
-      </section>
+      </AdminModal>
+
+      <AdminModal
+        open={Boolean(editing)}
+        title={editing ? `Edit ${editing.name}` : "Edit Theme"}
+        onClose={() => setEditing(null)}
+      >
+        {editing ? (
+          <form className="admin-form" onSubmit={saveEdit}>
+            {editing.key !== "default" ? (
+              <>
+                <label>
+                  Banner message
+                  <input
+                    value={editForm.announcement}
+                    onChange={(event) =>
+                      setEditForm((current) => ({ ...current, announcement: event.target.value }))
+                    }
+                  />
+                </label>
+                <label>
+                  Accent color
+                  <input
+                    type="color"
+                    value={editForm.accentColor}
+                    onChange={(event) =>
+                      setEditForm((current) => ({ ...current, accentColor: event.target.value }))
+                    }
+                  />
+                </label>
+              </>
+            ) : null}
+            <div className="admin-form admin-form--inline">
+              <label>
+                Start date
+                <input
+                  type="date"
+                  value={editForm.startsAt}
+                  onChange={(event) =>
+                    setEditForm((current) => ({ ...current, startsAt: event.target.value }))
+                  }
+                />
+              </label>
+              <label>
+                End date
+                <input
+                  type="date"
+                  value={editForm.endsAt}
+                  onChange={(event) =>
+                    setEditForm((current) => ({ ...current, endsAt: event.target.value }))
+                  }
+                />
+              </label>
+            </div>
+            <div className="admin-actions">
+              <button type="submit" className="btn btn--primary">
+                Save Changes
+              </button>
+              <button type="button" className="btn btn--outline" onClick={() => setEditing(null)}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        ) : null}
+      </AdminModal>
     </div>
   );
 }

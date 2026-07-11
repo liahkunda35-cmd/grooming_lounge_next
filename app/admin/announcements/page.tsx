@@ -2,6 +2,9 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AdminModal from "@/components/admin/AdminModal";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPagedTable from "@/components/admin/AdminPagedTable";
 
 type Announcement = {
   id: string;
@@ -37,6 +40,7 @@ export default function AdminAnnouncementsPage() {
   const [message, setMessage] = useState("");
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   async function loadAnnouncements() {
     const response = await fetch("/api/admin/announcements");
@@ -51,6 +55,12 @@ export default function AdminAnnouncementsPage() {
     loadAnnouncements();
   }, []);
 
+  function openCreate() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  }
+
   function startEdit(item: Announcement) {
     setEditingId(item.id);
     setForm({
@@ -63,9 +73,11 @@ export default function AdminAnnouncementsPage() {
       endsAt: toInputDate(item.endsAt),
       sortOrder: item.sortOrder,
     });
+    setModalOpen(true);
   }
 
-  function resetForm() {
+  function closeModal() {
+    setModalOpen(false);
     setEditingId(null);
     setForm(emptyForm);
   }
@@ -90,12 +102,12 @@ export default function AdminAnnouncementsPage() {
         method: editingId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     if (response.ok) {
       setMessage(editingId ? "Announcement updated." : "Announcement created.");
-      resetForm();
+      closeModal();
       loadAnnouncements();
       router.refresh();
     } else {
@@ -116,24 +128,70 @@ export default function AdminAnnouncementsPage() {
   async function deleteItem(id: string) {
     if (!confirm("Delete this announcement?")) return;
     await fetch(`/api/admin/announcements/${id}`, { method: "DELETE" });
-    if (editingId === id) resetForm();
+    if (editingId === id) closeModal();
     loadAnnouncements();
     router.refresh();
   }
 
   return (
     <div className="admin-grid">
-      <section className="admin-card">
-        <h1 className="section__title">Announcements</h1>
-        <p className="section__desc">
-          Promotions, closures, and special offers shown on the public website. No code changes
-          needed.
-        </p>
-        {message ? <p className="form-success">{message}</p> : null}
-      </section>
+      <AdminPageHeader
+        title="Announcements"
+        description="Promotions, closures, and special offers shown on the public website."
+        message={message}
+        actionLabel="Create Announcement"
+        onAction={openCreate}
+      />
 
       <section className="admin-card">
-        <h2>{editingId ? "Edit Announcement" : "Create Announcement"}</h2>
+        <AdminPagedTable
+          rows={items}
+          rowKey={(row) => row.id}
+          emptyMessage="No announcements yet."
+          columns={[
+            {
+              key: "title",
+              header: "Title",
+              render: (item) => (
+                <div>
+                  <strong>{item.title}</strong>
+                  {item.isPinned ? <span className="admin-badge">Pinned</span> : null}
+                  <p className="admin-table__sub">{item.message}</p>
+                </div>
+              ),
+            },
+            { key: "placement", header: "Placement", render: (item) => item.placement },
+            {
+              key: "status",
+              header: "Status",
+              render: (item) => (item.isEnabled ? "Enabled" : "Disabled"),
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              render: (item) => (
+                <div className="admin-actions">
+                  <button type="button" className="btn btn--outline btn--sm" onClick={() => startEdit(item)}>
+                    Edit
+                  </button>
+                  <button type="button" className="btn btn--outline btn--sm" onClick={() => toggleEnabled(item)}>
+                    {item.isEnabled ? "Disable" : "Enable"}
+                  </button>
+                  <button type="button" className="admin-btn-danger" onClick={() => deleteItem(item.id)}>
+                    Delete
+                  </button>
+                </div>
+              ),
+            },
+          ]}
+        />
+      </section>
+
+      <AdminModal
+        open={modalOpen}
+        title={editingId ? "Edit Announcement" : "Create Announcement"}
+        onClose={closeModal}
+      >
         <form className="admin-form" onSubmit={handleSubmit}>
           <label>
             Title
@@ -148,9 +206,7 @@ export default function AdminAnnouncementsPage() {
             <textarea
               rows={3}
               value={form.message}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, message: event.target.value }))
-              }
+              onChange={(event) => setForm((current) => ({ ...current, message: event.target.value }))}
               required
             />
           </label>
@@ -176,9 +232,7 @@ export default function AdminAnnouncementsPage() {
               <input
                 type="date"
                 value={form.startsAt}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, startsAt: event.target.value }))
-                }
+                onChange={(event) => setForm((current) => ({ ...current, startsAt: event.target.value }))}
               />
             </label>
             <label>
@@ -186,9 +240,7 @@ export default function AdminAnnouncementsPage() {
               <input
                 type="date"
                 value={form.endsAt}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, endsAt: event.target.value }))
-                }
+                onChange={(event) => setForm((current) => ({ ...current, endsAt: event.target.value }))}
               />
             </label>
           </div>
@@ -206,9 +258,7 @@ export default function AdminAnnouncementsPage() {
             <input
               type="checkbox"
               checked={form.isPinned}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, isPinned: event.target.checked }))
-              }
+              onChange={(event) => setForm((current) => ({ ...current, isPinned: event.target.checked }))}
             />
             Pin to top
           </label>
@@ -216,9 +266,7 @@ export default function AdminAnnouncementsPage() {
             <input
               type="checkbox"
               checked={form.isEnabled}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, isEnabled: event.target.checked }))
-              }
+              onChange={(event) => setForm((current) => ({ ...current, isEnabled: event.target.checked }))}
             />
             Enabled
           </label>
@@ -226,62 +274,12 @@ export default function AdminAnnouncementsPage() {
             <button type="submit" className="btn btn--primary">
               {editingId ? "Save Changes" : "Create Announcement"}
             </button>
-            {editingId ? (
-              <button type="button" className="btn btn--outline" onClick={resetForm}>
-                Cancel
-              </button>
-            ) : null}
+            <button type="button" className="btn btn--outline" onClick={closeModal}>
+              Cancel
+            </button>
           </div>
         </form>
-      </section>
-
-      <section className="admin-card">
-        <h2>All Announcements</h2>
-        {items.length === 0 ? (
-          <p>No announcements yet.</p>
-        ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Placement</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <strong>{item.title}</strong>
-                    {item.isPinned ? <span className="admin-badge">Pinned</span> : null}
-                    <p>{item.message}</p>
-                  </td>
-                  <td>{item.placement}</td>
-                  <td>{item.isEnabled ? "Enabled" : "Disabled"}</td>
-                  <td>
-                    <div className="admin-actions">
-                      <button type="button" className="btn btn--outline" onClick={() => startEdit(item)}>
-                        Edit
-                      </button>
-                      <button type="button" className="btn btn--outline" onClick={() => toggleEnabled(item)}>
-                        {item.isEnabled ? "Disable" : "Enable"}
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-btn-danger"
-                        onClick={() => deleteItem(item.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      </AdminModal>
     </div>
   );
 }

@@ -1,7 +1,10 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import AdminModal from "@/components/admin/AdminModal";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPagedTable from "@/components/admin/AdminPagedTable";
 
 type GalleryItem = {
   id: string;
@@ -21,6 +24,12 @@ type GalleryCategory = {
   items: GalleryItem[];
 };
 
+type FlatItem = GalleryItem & {
+  categoryId: string;
+  categoryName: string;
+  section: string;
+};
+
 export default function AdminGalleryPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<GalleryCategory[]>([]);
@@ -31,6 +40,20 @@ export default function AdminGalleryPage() {
   const [badgeType, setBadgeType] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const rows = useMemo<FlatItem[]>(
+    () =>
+      categories.flatMap((category) =>
+        category.items.map((item) => ({
+          ...item,
+          categoryId: category.id,
+          categoryName: category.name,
+          section: category.section,
+        })),
+      ),
+    [categories],
+  );
 
   async function loadCategories() {
     const response = await fetch("/api/admin/gallery/categories");
@@ -46,6 +69,14 @@ export default function AdminGalleryPage() {
   useEffect(() => {
     loadCategories();
   }, []);
+
+  function openUpload() {
+    setFile(null);
+    setCaption("");
+    setOverlayText("");
+    setBadgeType("");
+    setModalOpen(true);
+  }
 
   async function handleUpload(event: FormEvent) {
     event.preventDefault();
@@ -92,6 +123,7 @@ export default function AdminGalleryPage() {
       return;
     }
 
+    setModalOpen(false);
     setFile(null);
     setCaption("");
     setOverlayText("");
@@ -108,10 +140,54 @@ export default function AdminGalleryPage() {
 
   return (
     <div className="admin-grid">
-      <section className="admin-card">
-        <h1 className="section__title">Gallery Manager</h1>
-        <p className="section__desc">Upload photos or videos. They appear on the Services page immediately.</p>
+      <AdminPageHeader
+        title="Gallery Manager"
+        description="Upload photos or videos. They appear on the Services page immediately."
+        message={message}
+        actionLabel="Upload Media"
+        onAction={openUpload}
+      />
 
+      <section className="admin-card">
+        <AdminPagedTable
+          rows={rows}
+          rowKey={(row) => row.id}
+          emptyMessage="No gallery items yet."
+          columns={[
+            {
+              key: "preview",
+              header: "Preview",
+              render: (item) =>
+                item.mediaType === "video" ? (
+                  <video src={item.mediaUrl} className="admin-thumb" muted />
+                ) : (
+                  <img src={item.mediaUrl} alt="" className="admin-thumb" />
+                ),
+            },
+            {
+              key: "category",
+              header: "Category",
+              render: (item) => `${item.section} — ${item.categoryName}`,
+            },
+            {
+              key: "caption",
+              header: "Caption",
+              render: (item) => item.caption || item.overlayText || "—",
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              render: (item) => (
+                <button type="button" className="admin-btn-danger" onClick={() => deleteItem(item.id)}>
+                  Delete
+                </button>
+              ),
+            },
+          ]}
+        />
+      </section>
+
+      <AdminModal open={modalOpen} title="Upload Media" onClose={() => setModalOpen(false)}>
         <form className="admin-form" onSubmit={handleUpload}>
           <label>
             Category
@@ -138,7 +214,11 @@ export default function AdminGalleryPage() {
           </label>
           <label>
             Overlay label
-            <input value={overlayText} onChange={(e) => setOverlayText(e.target.value)} placeholder="Classic Cut" />
+            <input
+              value={overlayText}
+              onChange={(e) => setOverlayText(e.target.value)}
+              placeholder="Classic Cut"
+            />
           </label>
           <label>
             Badge
@@ -148,48 +228,16 @@ export default function AdminGalleryPage() {
               <option value="inspo">INSPO</option>
             </select>
           </label>
-          {message ? <p className="form-success">{message}</p> : null}
-          <button className="btn btn--primary" type="submit" disabled={loading}>
-            {loading ? "Uploading..." : "Upload Photo"}
-          </button>
+          <div className="admin-actions">
+            <button className="btn btn--primary" type="submit" disabled={loading}>
+              {loading ? "Uploading..." : "Upload Photo"}
+            </button>
+            <button className="btn btn--outline" type="button" onClick={() => setModalOpen(false)}>
+              Cancel
+            </button>
+          </div>
         </form>
-      </section>
-
-      <section className="admin-card">
-        <h2>Current Gallery Items</h2>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Preview</th>
-              <th>Category</th>
-              <th>Caption</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.flatMap((category) =>
-              category.items.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    {item.mediaType === "video" ? (
-                      <video src={item.mediaUrl} className="admin-thumb" muted />
-                    ) : (
-                      <img src={item.mediaUrl} alt="" className="admin-thumb" />
-                    )}
-                  </td>
-                  <td>{category.name}</td>
-                  <td>{item.caption || item.overlayText || "—"}</td>
-                  <td>
-                    <button type="button" className="admin-btn-danger" onClick={() => deleteItem(item.id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </section>
+      </AdminModal>
     </div>
   );
 }

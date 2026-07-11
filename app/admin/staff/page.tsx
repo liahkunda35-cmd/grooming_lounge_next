@@ -1,7 +1,10 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AdminModal from "@/components/admin/AdminModal";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPagedTable from "@/components/admin/AdminPagedTable";
 
 type StaffMember = {
   id: string;
@@ -24,14 +27,19 @@ type EditState = {
   photoUrl: string;
 };
 
+const emptyCreate = {
+  name: "",
+  title: "",
+  category: "barber",
+  specialties: "",
+};
+
 export default function AdminStaffPage() {
   const router = useRouter();
   const [staff, setStaff] = useState<StaffMember[]>([]);
-  const [name, setName] = useState("");
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("barber");
-  const [specialties, setSpecialties] = useState("");
+  const [createForm, setCreateForm] = useState(emptyCreate);
   const [message, setMessage] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<EditState | null>(null);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
 
@@ -48,36 +56,32 @@ export default function AdminStaffPage() {
     loadStaff();
   }, []);
 
-  const barbers = useMemo(
-    () => staff.filter((member) => member.category === "barber"),
-    [staff]
-  );
-  const salonStaff = useMemo(
-    () => staff.filter((member) => member.category === "hairdresser"),
-    [staff]
-  );
-
   async function handleCreate(event: FormEvent) {
     event.preventDefault();
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    const slug = createForm.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
 
     const response = await fetch("/api/admin/staff", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         slug,
-        name,
-        title,
-        category,
+        name: createForm.name,
+        title: createForm.title,
+        category: createForm.category,
         rating: 4.8,
-        specialties: specialties.split(",").map((item) => item.trim()).filter(Boolean),
+        specialties: createForm.specialties
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
       }),
     });
 
     if (response.ok) {
-      setName("");
-      setTitle("");
-      setSpecialties("");
+      setCreateForm(emptyCreate);
+      setCreateOpen(false);
       setMessage("Staff member added.");
       loadStaff();
     } else {
@@ -155,89 +159,112 @@ export default function AdminStaffPage() {
     }
   }
 
-  function renderStaffTable(members: StaffMember[], heading: string) {
-    return (
-      <section className="admin-card admin-staff-group">
-        <h2 className="admin-staff-group__title">{heading}</h2>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Photo</th>
-              <th>Name</th>
-              <th>Title</th>
-              <th>Specialties</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((member) => (
-              <tr key={member.id}>
-                <td>
-                  <div className="admin-staff-photo">
-                    {member.photoUrl ? (
-                      <img src={member.photoUrl} alt="" className="admin-staff-photo__img" />
-                    ) : (
-                      <span className="admin-staff-photo__placeholder" aria-hidden="true" />
-                    )}
-                    <label className="admin-staff-photo__upload">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        hidden
-                        disabled={uploadingId === member.id}
-                        onChange={(event) => {
-                          const file = event.target.files?.[0];
-                          if (file) uploadPhoto(member.id, file);
-                          event.target.value = "";
-                        }}
-                      />
-                      {uploadingId === member.id ? "Uploading…" : "Change"}
-                    </label>
-                  </div>
-                </td>
-                <td>{member.name}</td>
-                <td>{member.title}</td>
-                <td>{member.specialties.join(", ")}</td>
-                <td className="admin-table__actions">
+  return (
+    <div className="admin-grid">
+      <AdminPageHeader
+        title="Staff Management"
+        description="Manage barbers and salon specialists shown on the booking page."
+        message={message}
+        actionLabel="Add Staff Member"
+        onAction={() => {
+          setCreateForm(emptyCreate);
+          setCreateOpen(true);
+        }}
+      />
+
+      <section className="admin-card">
+        <AdminPagedTable
+          rows={staff}
+          rowKey={(row) => row.id}
+          emptyMessage="No staff members yet."
+          columns={[
+            {
+              key: "photo",
+              header: "Photo",
+              render: (member) => (
+                <div className="admin-staff-photo">
+                  {member.photoUrl ? (
+                    <img src={member.photoUrl} alt="" className="admin-staff-photo__img" />
+                  ) : (
+                    <span className="admin-staff-photo__placeholder" aria-hidden="true" />
+                  )}
+                  <label className="admin-staff-photo__upload">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      disabled={uploadingId === member.id}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) uploadPhoto(member.id, file);
+                        event.target.value = "";
+                      }}
+                    />
+                    {uploadingId === member.id ? "Uploading…" : "Change"}
+                  </label>
+                </div>
+              ),
+            },
+            { key: "name", header: "Name", render: (member) => member.name },
+            { key: "title", header: "Title", render: (member) => member.title },
+            {
+              key: "category",
+              header: "Category",
+              render: (member) => (member.category === "barber" ? "Barber" : "Salon"),
+            },
+            {
+              key: "specialties",
+              header: "Specialties",
+              render: (member) => member.specialties.join(", ") || "—",
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              className: "admin-table__actions",
+              render: (member) => (
+                <div className="admin-actions">
                   <button type="button" className="btn btn--outline btn--sm" onClick={() => startEdit(member)}>
                     Edit
                   </button>
                   <button type="button" className="admin-btn-danger" onClick={() => deleteStaff(member.id)}>
                     Remove
                   </button>
-                </td>
-              </tr>
-            ))}
-            {!members.length ? (
-              <tr>
-                <td colSpan={5}>No staff members in this category yet.</td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
+                </div>
+              ),
+            },
+          ]}
+        />
       </section>
-    );
-  }
 
-  return (
-    <div className="admin-grid">
-      <section className="admin-card">
-        <h1 className="section__title">Staff Management</h1>
-        <p className="section__desc">
-          Manage barbers and salon specialists shown on the booking page. Changes appear immediately for customers.
-        </p>
+      <AdminModal
+        open={createOpen}
+        title="Add Staff Member"
+        onClose={() => setCreateOpen(false)}
+      >
         <form className="admin-form" onSubmit={handleCreate}>
           <label>
             Name
-            <input value={name} onChange={(e) => setName(e.target.value)} required />
+            <input
+              value={createForm.name}
+              onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+              required
+            />
           </label>
           <label>
             Title
-            <input value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Senior Barber" />
+            <input
+              value={createForm.title}
+              onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
+              required
+              placeholder="Senior Barber"
+            />
           </label>
           <label>
             Category
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <select
+              value={createForm.category}
+              onChange={(e) => setCreateForm({ ...createForm, category: e.target.value })}
+            >
               <option value="barber">Barber</option>
               <option value="hairdresser">Salon Specialist</option>
             </select>
@@ -245,21 +272,24 @@ export default function AdminStaffPage() {
           <label>
             Specialties (comma separated)
             <input
-              value={specialties}
-              onChange={(e) => setSpecialties(e.target.value)}
+              value={createForm.specialties}
+              onChange={(e) => setCreateForm({ ...createForm, specialties: e.target.value })}
               placeholder="Fades, Beard Grooming"
             />
           </label>
-          {message ? <p className="form-success">{message}</p> : null}
-          <button className="btn btn--primary" type="submit">
-            Add Staff Member
-          </button>
+          <div className="admin-actions">
+            <button className="btn btn--primary" type="submit">
+              Add Staff Member
+            </button>
+            <button className="btn btn--outline" type="button" onClick={() => setCreateOpen(false)}>
+              Cancel
+            </button>
+          </div>
         </form>
-      </section>
+      </AdminModal>
 
-      {editing ? (
-        <section className="admin-card">
-          <h2 className="admin-staff-group__title">Edit Staff Member</h2>
+      <AdminModal open={Boolean(editing)} title="Edit Staff Member" onClose={() => setEditing(null)}>
+        {editing ? (
           <form className="admin-form" onSubmit={saveEdit}>
             <label>
               Name
@@ -303,11 +333,8 @@ export default function AdminStaffPage() {
               </button>
             </div>
           </form>
-        </section>
-      ) : null}
-
-      {renderStaffTable(barbers, "Barbers")}
-      {renderStaffTable(salonStaff, "Salon Specialists")}
+        ) : null}
+      </AdminModal>
     </div>
   );
 }

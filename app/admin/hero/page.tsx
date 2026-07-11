@@ -2,6 +2,9 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AdminModal from "@/components/admin/AdminModal";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPagedTable from "@/components/admin/AdminPagedTable";
 
 export default function AdminHeroPage() {
   const router = useRouter();
@@ -11,6 +14,7 @@ export default function AdminHeroPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   async function loadHero() {
     const response = await fetch("/api/admin/hero");
@@ -63,6 +67,7 @@ export default function AdminHeroPage() {
       setImageUrl(data.imageUrl);
       setUpdatedAt(data.updatedAt);
       setFile(null);
+      setModalOpen(false);
       setMessage(data.message || "Hero banner updated successfully.");
       router.refresh();
     } else {
@@ -73,30 +78,69 @@ export default function AdminHeroPage() {
   }
 
   const displayUrl = previewUrl || imageUrl;
+  const rows = [
+    {
+      id: "hero",
+      label: "Homepage hero banner",
+      imageUrl: displayUrl,
+      updatedAt,
+    },
+  ];
 
   return (
     <div className="admin-grid">
-      <section className="admin-card">
-        <h1 className="section__title">Hero Banner Management</h1>
-        <p className="section__desc">
-          Upload a new image for the homepage hero banner. Recommended size: at least 1920×1080px. JPG,
-          PNG, or WEBP up to 15MB.
-        </p>
-        {message ? <p className="form-success">{message}</p> : null}
-      </section>
+      <AdminPageHeader
+        title="Hero Banner Management"
+        description="Upload a new image for the homepage hero banner. JPG, PNG, or WEBP up to 15MB."
+        message={message}
+        actionLabel="Replace Banner"
+        onAction={() => {
+          setFile(null);
+          setModalOpen(true);
+        }}
+      />
 
       <section className="admin-card">
-        <h2>Current Hero Banner</h2>
-        <div className="admin-hero-preview">
-          <img src={displayUrl} alt="Current homepage hero banner preview" className="admin-hero-preview__img" />
+        <AdminPagedTable
+          rows={rows}
+          rowKey={(row) => row.id}
+          pageSize={5}
+          columns={[
+            {
+              key: "preview",
+              header: "Preview",
+              render: (row) => <img src={row.imageUrl} alt="" className="admin-thumb admin-thumb--wide" />,
+            },
+            { key: "label", header: "Asset", render: (row) => row.label },
+            {
+              key: "updated",
+              header: "Last updated",
+              render: (row) => (row.updatedAt ? new Date(row.updatedAt).toLocaleString() : "—"),
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              render: () => (
+                <button
+                  type="button"
+                  className="btn btn--outline btn--sm"
+                  onClick={() => {
+                    setFile(null);
+                    setModalOpen(true);
+                  }}
+                >
+                  Replace
+                </button>
+              ),
+            },
+          ]}
+        />
+      </section>
+
+      <AdminModal open={modalOpen} title="Replace Hero Banner" onClose={() => setModalOpen(false)}>
+        <div className="admin-hero-preview admin-hero-preview--modal">
+          <img src={displayUrl} alt="Hero banner preview" className="admin-hero-preview__img" />
         </div>
-        {updatedAt ? (
-          <p className="admin-meta">Last updated: {new Date(updatedAt).toLocaleString()}</p>
-        ) : null}
-      </section>
-
-      <section className="admin-card">
-        <h2>Replace Hero Image</h2>
         <form className="admin-form" onSubmit={handleSubmit}>
           <label>
             Choose new banner image
@@ -107,11 +151,16 @@ export default function AdminHeroPage() {
               required
             />
           </label>
-          <button type="submit" className="btn btn--primary" disabled={loading}>
-            {loading ? "Uploading…" : "Save Hero Banner"}
-          </button>
+          <div className="admin-actions">
+            <button type="submit" className="btn btn--primary" disabled={loading}>
+              {loading ? "Uploading…" : "Save Hero Banner"}
+            </button>
+            <button type="button" className="btn btn--outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </button>
+          </div>
         </form>
-      </section>
+      </AdminModal>
     </div>
   );
 }

@@ -2,6 +2,9 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import AdminModal from "@/components/admin/AdminModal";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPagedTable from "@/components/admin/AdminPagedTable";
 
 type AboutImageKey = "story_primary" | "story_secondary" | "branch_munaro" | "branch_ibex";
 
@@ -28,12 +31,14 @@ export default function AdminAboutImagesPage() {
   const router = useRouter();
   const [slots, setSlots] = useState<AboutImageSlot[]>([]);
   const [images, setImages] = useState<Record<AboutImageKey, AboutImageRecord> | null>(null);
+  const [activeKey, setActiveKey] = useState<AboutImageKey | null>(null);
   const [drafts, setDrafts] = useState<Record<AboutImageKey, SlotDraft>>({
     story_primary: { file: null, previewUrl: null, loading: false, message: "" },
     story_secondary: { file: null, previewUrl: null, loading: false, message: "" },
     branch_munaro: { file: null, previewUrl: null, loading: false, message: "" },
     branch_ibex: { file: null, previewUrl: null, loading: false, message: "" },
   });
+  const [message, setMessage] = useState("");
 
   async function loadImages() {
     const response = await fetch("/api/admin/about-images");
@@ -100,15 +105,17 @@ export default function AdminAboutImagesPage() {
 
     if (response.ok) {
       setImages((current) =>
-        current ? { ...current, [key]: { url: data.url, updatedAt: data.updatedAt } } : current
+        current ? { ...current, [key]: { url: data.url, updatedAt: data.updatedAt } } : current,
       );
       if (draft.previewUrl) URL.revokeObjectURL(draft.previewUrl);
       updateDraft(key, {
         file: null,
         previewUrl: null,
         loading: false,
-        message: data.message || "Image saved.",
+        message: "",
       });
+      setMessage(data.message || "Image saved.");
+      setActiveKey(null);
       router.refresh();
     } else {
       updateDraft(key, {
@@ -130,15 +137,17 @@ export default function AdminAboutImagesPage() {
 
     if (response.ok) {
       setImages((current) =>
-        current ? { ...current, [key]: { url: data.url, updatedAt: data.updatedAt } } : current
+        current ? { ...current, [key]: { url: data.url, updatedAt: data.updatedAt } } : current,
       );
-      if (drafts[key].previewUrl) URL.revokeObjectURL(drafts[key].previewUrl);
+      if (drafts[key].previewUrl) URL.revokeObjectURL(drafts[key].previewUrl!);
       updateDraft(key, {
         file: null,
         previewUrl: null,
         loading: false,
-        message: data.message || "Image reset to default.",
+        message: "",
       });
+      setMessage(data.message || "Image reset to default.");
+      setActiveKey(null);
       router.refresh();
     } else {
       updateDraft(key, {
@@ -148,72 +157,120 @@ export default function AdminAboutImagesPage() {
     }
   }
 
+  const activeSlot = slots.find((slot) => slot.key === activeKey) ?? null;
+  const activeDraft = activeKey ? drafts[activeKey] : null;
+  const activeRecord = activeKey && images ? images[activeKey] : null;
+  const activeDisplayUrl =
+    activeDraft?.previewUrl || activeRecord?.url || activeSlot?.defaultUrl || "";
+
   return (
     <div className="admin-grid">
+      <AdminPageHeader
+        title="About Us Images"
+        description="Manage the photos shown on the About page. Changes appear immediately after saving."
+        message={message}
+      />
+
       <section className="admin-card">
-        <h1 className="section__title">About Us Images</h1>
-        <p className="section__desc">
-          Manage the photos shown on the About page. Upload JPG, JPEG, PNG, or WEBP images — they are
-          automatically optimized for the web. Changes appear on the About page immediately after saving.
-        </p>
+        <AdminPagedTable
+          rows={slots}
+          rowKey={(row) => row.key}
+          pageSize={8}
+          emptyMessage="No image slots found."
+          columns={[
+            {
+              key: "preview",
+              header: "Preview",
+              render: (slot) => {
+                const record = images?.[slot.key];
+                const draft = drafts[slot.key];
+                const url = draft.previewUrl || record?.url || slot.defaultUrl;
+                return <img src={url} alt="" className="admin-thumb" />;
+              },
+            },
+            { key: "label", header: "Slot", render: (slot) => slot.label },
+            {
+              key: "description",
+              header: "Description",
+              render: (slot) => <span className="admin-table__sub">{slot.description}</span>,
+            },
+            {
+              key: "updated",
+              header: "Updated",
+              render: (slot) => {
+                const record = images?.[slot.key];
+                return record?.updatedAt ? new Date(record.updatedAt).toLocaleString() : "—";
+              },
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              render: (slot) => {
+                const record = images?.[slot.key];
+                const isCustom = Boolean(record?.url && record.url !== slot.defaultUrl);
+                return (
+                  <div className="admin-actions">
+                    <button
+                      type="button"
+                      className="btn btn--outline btn--sm"
+                      onClick={() => setActiveKey(slot.key)}
+                    >
+                      Replace
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-btn-danger"
+                      disabled={!isCustom || drafts[slot.key].loading}
+                      onClick={() => handleDelete(slot.key, slot.label)}
+                    >
+                      Reset
+                    </button>
+                  </div>
+                );
+              },
+            },
+          ]}
+        />
       </section>
 
-      <div className="admin-about-grid">
-        {slots.map((slot) => {
-          const record = images?.[slot.key];
-          const draft = drafts[slot.key];
-          const displayUrl = draft.previewUrl || record?.url || slot.defaultUrl;
-          const isCustom = record?.url && record.url !== slot.defaultUrl;
-
-          return (
-            <section key={slot.key} className="admin-card admin-about-card">
-              <div className="admin-about-card__header">
-                <h2>{slot.label}</h2>
-                <p>{slot.description}</p>
+      <AdminModal
+        open={Boolean(activeSlot)}
+        title={activeSlot ? `Replace ${activeSlot.label}` : "Replace image"}
+        onClose={() => setActiveKey(null)}
+      >
+        {activeSlot && activeDraft ? (
+          <>
+            <div className="admin-about-card__preview">
+              <img src={activeDisplayUrl} alt={`${activeSlot.label} preview`} className="admin-about-card__img" />
+            </div>
+            <form className="admin-form" onSubmit={(event) => handleReplace(event, activeSlot.key)}>
+              <label>
+                Choose image
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) =>
+                    handleFileChange(activeSlot.key, event.target.files?.[0] ?? null)
+                  }
+                />
+              </label>
+              {activeDraft.message ? <p className="form-success">{activeDraft.message}</p> : null}
+              <div className="admin-actions">
+                <button
+                  type="submit"
+                  className="btn btn--primary"
+                  disabled={activeDraft.loading || !activeDraft.file}
+                >
+                  {activeDraft.loading ? "Saving…" : "Save Image"}
+                </button>
+                <button type="button" className="btn btn--outline" onClick={() => setActiveKey(null)}>
+                  Cancel
+                </button>
               </div>
-
-              <div className="admin-about-card__preview">
-                <img src={displayUrl} alt={`${slot.label} preview`} className="admin-about-card__img" />
-                {draft.previewUrl ? (
-                  <span className="admin-about-card__badge">Preview — not saved yet</span>
-                ) : null}
-              </div>
-
-              {record?.updatedAt ? (
-                <p className="admin-meta">
-                  Last updated: {new Date(record.updatedAt).toLocaleString()}
-                </p>
-              ) : null}
-
-              <form className="admin-form" onSubmit={(event) => handleReplace(event, slot.key)}>
-                <label>
-                  Replace image
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    onChange={(event) => handleFileChange(slot.key, event.target.files?.[0] ?? null)}
-                  />
-                </label>
-                <div className="admin-about-card__actions">
-                  <button type="submit" className="btn btn--primary" disabled={draft.loading || !draft.file}>
-                    {draft.loading ? "Saving…" : "Save Image"}
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-btn-danger"
-                    disabled={draft.loading || !isCustom}
-                    onClick={() => handleDelete(slot.key, slot.label)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </form>
-
-              {draft.message ? <p className="form-success">{draft.message}</p> : null}
-            </section>
-          );
-        })}
-      </div>
+            </form>
+          </>
+        ) : null}
+      </AdminModal>
     </div>
   );
 }
