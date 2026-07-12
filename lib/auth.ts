@@ -24,11 +24,12 @@ export async function createSession(email: string) {
   const token = await signSessionToken(email);
 
   const cookieStore = await cookies();
+  // Browser session cookie (no maxAge): closing the browser requires login again.
+  // Idle timeout + JWT expiry still limit active sessions.
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: SESSION_MAX_AGE,
     path: "/",
   });
 }

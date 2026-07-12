@@ -1,8 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 
 export const SESSION_COOKIE = "gl_admin_session";
-/** Absolute session lifetime (seconds). Active users are also limited by idle timeout. */
-export const SESSION_MAX_AGE = 60 * 60 * 8;
+/** Absolute JWT lifetime (seconds). Cookie itself is session-only; idle timeout also applies. */
+export const SESSION_MAX_AGE = 60 * 60 * 4;
 
 export type SessionPayload = {
   email: string;

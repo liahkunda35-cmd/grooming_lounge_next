@@ -11,6 +11,63 @@ function withNoStore(response: NextResponse) {
   return response;
 }
 
+function clearSessionCookie(response: NextResponse) {
+  response.cookies.set(SESSION_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0,
+    path: "/",
+  });
+  return response;
+}
+
+function redirectToLogin(request: NextRequest, pathname: string) {
+  const loginUrl = new URL(LOGIN_PATH, request.url);
+  if (pathname !== "/admin") {
+    loginUrl.searchParams.set("next", pathname);
+  }
+  return clearSessionCookie(withNoStore(NextResponse.redirect(loginUrl)));
+}
+
+/**
+ * True when this looks like a fresh visit to admin (typed URL, bookmark,
+ * link from the public site, or external site) — not an in-admin click or refresh.
+ */
+function isFreshAdminVisit(request: NextRequest) {
+  const fetchMode = request.headers.get("sec-fetch-mode");
+  const fetchSite = request.headers.get("sec-fetch-site");
+
+  // Non-navigation requests (RSC prefetch, assets) keep the session
+  if (fetchMode && fetchMode !== "navigate") {
+    return false;
+  }
+
+  // Typed URL / bookmark / new tab
+  if (fetchSite === "none" || fetchSite === "cross-site") {
+    return true;
+  }
+
+  const referer = request.headers.get("referer");
+  if (!referer) {
+    // No referer on a document navigation → treat as a new visit
+    return fetchMode === "navigate" || !fetchMode;
+  }
+
+  try {
+    const ref = new URL(referer);
+    if (ref.origin !== request.nextUrl.origin) {
+      return true;
+    }
+    const fromAdmin = ref.pathname.startsWith("/admin");
+    const fromLogin = ref.pathname === LOGIN_PATH || ref.pathname === "/admin/login";
+    // Coming from public pages (home, services, etc.) → must sign in again
+    return !fromAdmin && !fromLogin;
+  } catch {
+    return true;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -29,6 +86,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
+    // Login page: always clear any old session so credentials are required
+    if (isLoginPage) {
+      return clearSessionCookie(withNoStore(NextResponse.next()));
+    }
+
     let session = null;
     try {
       const token = request.cookies.get(SESSION_COOKIE)?.value;
@@ -38,9 +100,9 @@ export async function middleware(request: NextRequest) {
       session = null;
     }
 
-    // Always allow the login pages through (never auto-skip to dashboard)
-    if (isLoginPage) {
-      return withNoStore(NextResponse.next());
+    // Fresh visit to admin (from public site / bookmark / new tab) → force login
+    if (isAdminPage && session && isFreshAdminVisit(request)) {
+      return redirectToLogin(request, pathname);
     }
 
     if (!session) {
@@ -49,12 +111,7 @@ export async function middleware(request: NextRequest) {
           NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
         );
       }
-
-      const loginUrl = new URL(LOGIN_PATH, request.url);
-      if (pathname !== "/admin") {
-        loginUrl.searchParams.set("next", pathname);
-      }
-      return withNoStore(NextResponse.redirect(loginUrl));
+      return redirectToLogin(request, pathname);
     }
 
     return withNoStore(NextResponse.next());
@@ -63,7 +120,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/admin")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL(LOGIN_PATH, request.url));
+    return redirectToLogin(request, pathname);
   }
 }
 
