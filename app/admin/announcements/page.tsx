@@ -45,7 +45,7 @@ export default function AdminAnnouncementsPage() {
   async function loadAnnouncements() {
     const response = await fetch("/api/admin/announcements");
     if (response.status === 401) {
-      router.push("/admin/login");
+      router.push("/login");
       return;
     }
     setItems(await response.json());

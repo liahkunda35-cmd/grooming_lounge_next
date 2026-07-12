@@ -6,19 +6,31 @@ import { getActiveTheme } from "@/lib/themes";
 
 export default async function AdminDashboardPage() {
   const session = await getSession();
-  if (!session) redirect("/admin/login");
+  if (!session) redirect("/login");
 
-  const [galleryCount, staffCount, announcementCount, liveTheme, categoryCount] =
-    await Promise.all([
+  let galleryCount = 0;
+  let staffCount = 0;
+  let announcementCount = 0;
+  let categoryCount = 0;
+  let activeThemeName = "Default";
+
+  try {
+    const [gallery, staff, announcements, liveTheme, categories] = await Promise.all([
       prisma.galleryItem.count(),
       prisma.staffMember.count(),
       prisma.announcement.count(),
       getActiveTheme(),
       prisma.galleryCategory.count(),
     ]);
-
-  const activeThemeName =
-    liveTheme && liveTheme.key !== "default" ? liveTheme.name : "Default";
+    galleryCount = gallery;
+    staffCount = staff;
+    announcementCount = announcements;
+    categoryCount = categories;
+    activeThemeName =
+      liveTheme && liveTheme.key !== "default" ? liveTheme.name : "Default";
+  } catch (error) {
+    console.error("Admin dashboard failed to load metrics:", error);
+  }
 
   const contentTotal = galleryCount + staffCount + announcementCount;
   const galleryShare = contentTotal ? Math.round((galleryCount / contentTotal) * 100) : 0;

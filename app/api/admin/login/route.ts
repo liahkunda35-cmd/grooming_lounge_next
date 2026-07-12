@@ -26,15 +26,27 @@ export async function POST(request: Request) {
   }
 
   const email = parsed.data.email.toLowerCase();
-  const valid = await authenticateAdmin(email, parsed.data.password);
 
-  if (!valid) {
+  try {
+    const valid = await authenticateAdmin(email, parsed.data.password);
+
+    if (!valid) {
+      return NextResponse.json(
+        { error: "Invalid email or password. Please try again." },
+        { status: 401 },
+      );
+    }
+
+    await createSession(email);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Admin login failed:", error);
     return NextResponse.json(
-      { error: "Invalid email or password. Please try again." },
-      { status: 401 },
+      {
+        error:
+          "Admin login is temporarily unavailable. Check DATABASE_URL, SESSION_SECRET, and ADMIN_EMAIL/ADMIN_PASSWORD on the host.",
+      },
+      { status: 500 },
     );
   }
-
-  await createSession(email);
-  return NextResponse.json({ success: true });
 }

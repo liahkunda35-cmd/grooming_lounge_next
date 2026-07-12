@@ -49,35 +49,40 @@ export async function getThemeByKey(key: string) {
 /** Theme currently shown on the public site (manual activation wins over schedule). */
 export async function getActiveTheme() {
   noStore();
-  const now = new Date();
+  try {
+    const now = new Date();
 
-  const manuallyActive = await prisma.seasonalTheme.findFirst({
-    where: { isActive: true },
-    orderBy: { updatedAt: "desc" },
-  });
+    const manuallyActive = await prisma.seasonalTheme.findFirst({
+      where: { isActive: true },
+      orderBy: { updatedAt: "desc" },
+    });
 
-  if (manuallyActive) {
-    return withParsedConfig(manuallyActive);
-  }
-
-  const scheduled = await prisma.seasonalTheme.findMany({
-    where: {
-      key: { not: "default" },
-      OR: [{ startsAt: { not: null } }, { endsAt: { not: null } }],
-    },
-    orderBy: { updatedAt: "desc" },
-  });
-
-  for (const theme of scheduled) {
-    if (isWithinSchedule(theme.startsAt, theme.endsAt, now)) {
-      return withParsedConfig(theme);
+    if (manuallyActive) {
+      return withParsedConfig(manuallyActive);
     }
+
+    const scheduled = await prisma.seasonalTheme.findMany({
+      where: {
+        key: { not: "default" },
+        OR: [{ startsAt: { not: null } }, { endsAt: { not: null } }],
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    for (const theme of scheduled) {
+      if (isWithinSchedule(theme.startsAt, theme.endsAt, now)) {
+        return withParsedConfig(theme);
+      }
+    }
+
+    const fallback = await prisma.seasonalTheme.findFirst({
+      where: { key: "default" },
+    });
+
+    if (!fallback) return null;
+    return withParsedConfig(fallback);
+  } catch (error) {
+    console.error("getActiveTheme failed:", error);
+    return null;
   }
-
-  const fallback = await prisma.seasonalTheme.findFirst({
-    where: { key: "default" },
-  });
-
-  if (!fallback) return null;
-  return withParsedConfig(fallback);
 }

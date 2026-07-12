@@ -43,7 +43,7 @@ export default function AdminAboutImagesPage() {
   async function loadImages() {
     const response = await fetch("/api/admin/about-images");
     if (response.status === 401) {
-      router.push("/admin/login");
+      router.push("/login");
       return;
     }
     if (!response.ok) return;

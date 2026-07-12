@@ -7,6 +7,6 @@ export default async function AdminPricesLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
-  if (!session) redirect("/admin/login");
+  if (!session) redirect("/login");
   return children;
 }

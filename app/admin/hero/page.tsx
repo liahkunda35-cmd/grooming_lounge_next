@@ -19,7 +19,7 @@ export default function AdminHeroPage() {
   async function loadHero() {
     const response = await fetch("/api/admin/hero");
     if (response.status === 401) {
-      router.push("/admin/login");
+      router.push("/login");
       return;
     }
     if (response.ok) {

@@ -45,7 +45,7 @@ export default function AdminPricesPage() {
   async function loadServices() {
     const response = await fetch("/api/admin/services");
     if (response.status === 401) {
-      router.push("/admin/login");
+      router.push("/login");
       return;
     }
     if (!response.ok) {

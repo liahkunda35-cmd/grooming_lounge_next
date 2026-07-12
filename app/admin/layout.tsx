@@ -6,11 +6,17 @@ import { getSession, destroySession } from "@/lib/auth";
 async function logout() {
   "use server";
   await destroySession();
-  redirect("/admin/login");
+  redirect("/login");
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession();
+  let session = null;
+  try {
+    session = await getSession();
+  } catch (error) {
+    console.error("Admin layout session error:", error);
+    session = null;
+  }
 
   if (!session) {
     return <div className="admin-shell">{children}</div>;

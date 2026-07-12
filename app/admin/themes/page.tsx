@@ -73,7 +73,7 @@ export default function AdminThemesPage() {
     try {
       const response = await fetch("/api/admin/themes");
       if (response.status === 401) {
-        router.push("/admin/login");
+        router.push("/login");
         return;
       }
       if (!response.ok) {

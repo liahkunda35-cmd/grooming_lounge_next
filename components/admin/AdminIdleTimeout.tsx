@@ -35,7 +35,7 @@ export default function AdminIdleTimeout() {
         /* still redirect */
       }
 
-      router.replace("/admin/login?reason=inactive");
+      router.replace("/login?reason=inactive");
       router.refresh();
     }
 

@@ -46,7 +46,7 @@ export default function AdminStaffPage() {
   async function loadStaff() {
     const response = await fetch("/api/admin/staff");
     if (response.status === 401) {
-      router.push("/admin/login");
+      router.push("/login");
       return;
     }
     setStaff(await response.json());

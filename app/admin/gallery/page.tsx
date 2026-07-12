@@ -58,7 +58,7 @@ export default function AdminGalleryPage() {
   async function loadCategories() {
     const response = await fetch("/api/admin/gallery/categories");
     if (response.status === 401) {
-      router.push("/admin/login");
+      router.push("/login");
       return;
     }
     const data = await response.json();
