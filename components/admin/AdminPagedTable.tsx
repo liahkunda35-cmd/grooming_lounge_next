@@ -51,14 +51,18 @@ export default function AdminPagedTable<T>({
               pageRows.map((row) => (
                 <tr key={rowKey(row)}>
                   {columns.map((column) => (
-                    <td key={column.key} className={column.className}>
+                    <td
+                      key={column.key}
+                      className={column.className}
+                      data-label={column.header}
+                    >
                       {column.render(row)}
                     </td>
                   ))}
                 </tr>
               ))
             ) : (
-              <tr>
+              <tr className="admin-table__empty">
                 <td colSpan={columns.length}>{emptyMessage}</td>
               </tr>
             )}

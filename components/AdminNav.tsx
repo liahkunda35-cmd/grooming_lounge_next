@@ -121,7 +121,7 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function AdminNav() {
+export default function AdminNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -137,6 +137,7 @@ export default function AdminNav() {
           ]
             .filter(Boolean)
             .join(" ")}
+          onClick={() => onNavigate?.()}
           {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         >
           <span className="admin-side-nav__icon">{item.icon}</span>

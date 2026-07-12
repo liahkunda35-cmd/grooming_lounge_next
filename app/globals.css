@@ -2368,6 +2368,27 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
   transform: translateX(4px);
 }
 
+.footer__login-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.35rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(230, 212, 184, 0.45);
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08);
+  width: fit-content;
+  transform: none !important;
+}
+
+.footer__login-btn:hover {
+  background: rgba(184, 134, 11, 0.35);
+  border-color: var(--gold-pale);
+  color: #fff !important;
+  transform: none !important;
+}
+
 .footer__social {
   display: flex;
   gap: 0.75rem;
@@ -3710,6 +3731,19 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
   box-shadow: 0 18px 40px rgba(255, 140, 122, 0.28);
 }
 
+.admin-sidebar__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.admin-sidebar__close,
+.admin-menu-btn,
+.admin-nav-backdrop {
+  display: none;
+}
+
 .admin-sidebar__brand {
   display: flex;
   align-items: center;
@@ -3821,6 +3855,14 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
   border-radius: 1.25rem;
   background: var(--admin-panel);
   box-shadow: 0 10px 30px rgba(43, 43, 43, 0.05);
+}
+
+.admin-topbar__leading {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .admin-topbar__search {
@@ -4288,30 +4330,246 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
 }
 
 @media (max-width: 860px) {
+  .admin-shell--app {
+    overflow-x: hidden;
+  }
+
   .admin-app-frame {
     grid-template-columns: 1fr;
     padding: 0.75rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .admin-menu-btn {
+    display: inline-grid;
+    gap: 0.28rem;
+    width: 2.55rem;
+    height: 2.55rem;
+    place-content: center;
+    border: 0;
+    border-radius: 0.9rem;
+    background: #f4f4f7;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .admin-menu-btn span {
+    display: block;
+    width: 1.1rem;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--admin-ink);
+  }
+
+  .admin-nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    border: 0;
+    background: rgba(24, 24, 28, 0.42);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .admin-app-frame--nav-open .admin-nav-backdrop {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .admin-sidebar {
-    gap: 0.85rem;
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    width: min(288px, calc(100vw - 1.5rem));
+    z-index: 50;
+    transform: translateX(calc(-100% - 1rem));
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+  }
+
+  .admin-app-frame--nav-open .admin-sidebar {
+    transform: translateX(0);
+  }
+
+  .admin-sidebar__close {
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.16);
+    color: #fff;
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
   }
 
   .admin-topbar {
-    flex-direction: column;
-    align-items: stretch;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .admin-topbar__leading {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .admin-topbar__search {
     max-width: none;
+    flex: 1;
   }
 
   .admin-topbar__profile {
-    justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .admin-topbar__user span {
+    max-width: 110px;
   }
 
   .admin-dash__metrics {
     grid-template-columns: 1fr;
+  }
+
+  .admin-page-header__row {
+    flex-direction: column;
+  }
+
+  .admin-page-header__actions {
+    width: 100%;
+  }
+
+  .admin-page-header__actions .btn {
+    flex: 1 1 auto;
+  }
+
+  .admin-data__table-wrap {
+    margin: 0;
+    overflow-x: visible;
+  }
+
+  .admin-table--paged {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .admin-table--paged thead {
+    display: none;
+  }
+
+  .admin-table--paged,
+  .admin-table--paged tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-table--paged tr {
+    display: grid;
+    gap: 0.65rem;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    padding: 0.9rem;
+    border: 1px solid var(--admin-line, #ececec);
+    border-radius: 1rem;
+    background: #fafafa;
+    box-sizing: border-box;
+  }
+
+  .admin-table--paged tr.admin-table__empty {
+    display: block;
+  }
+
+  .admin-table--paged td {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 0.5rem;
+    align-items: start;
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+    padding: 0;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .admin-table--paged td::before {
+    content: attr(data-label);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--admin-muted, #7a7a7a);
+  }
+
+  .admin-table--paged .admin-table__actions,
+  .admin-table--paged td.admin-table__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-table--paged .admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .admin-table--paged .admin-actions .btn,
+  .admin-table--paged .admin-actions .admin-btn-danger {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .admin-table--paged .admin-thumb,
+  .admin-table--paged .admin-thumb--wide,
+  .admin-table--paged .admin-staff-photo__img,
+  .admin-table--paged .admin-staff-photo__placeholder {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    max-height: 120px;
+    object-fit: cover;
+  }
+
+  .admin-table--paged .admin-staff-photo {
+    width: 100%;
+  }
+
+  .admin-pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-pagination__actions {
+    justify-content: stretch;
+  }
+
+  .admin-pagination__actions .btn {
+    flex: 1;
+  }
+
+  .admin-modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .admin-modal__panel,
+  .admin-modal__panel--wide {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 1.25rem 1.25rem 0 0;
+  }
+
+  .admin-card,
+  .admin-main,
+  .admin-app {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 
@@ -4338,12 +4596,12 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
 }
 
 .admin-data__table-wrap {
-  overflow-x: auto;
+  overflow-x: visible;
 }
 
 .admin-table--paged {
   width: 100%;
-  min-width: 720px;
+  min-width: 0;
 }
 
 .admin-table--paged th {
