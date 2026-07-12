@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import {
-  BARBER_SERVICE_LABELS,
-  SALON_SERVICE_LABELS,
+  PRICE_CATALOG,
 } from "../lib/bookable-services-catalog";
+import { formatServiceLabel } from "../lib/bookable-services";
 import { GALLERY_CATALOG } from "../lib/gallery-catalog";
 
 const prisma = new PrismaClient();
@@ -21,9 +21,8 @@ const staff = [
   { slug: "linda-banda", category: "hairdresser", name: "Linda Banda", title: "Hairdresser", rating: 4.8, specialties: ["Nails", "Manicure", "Pedicure"] },
 ];
 
-const barberServices = [...BARBER_SERVICE_LABELS];
-
-const salonServices = [...SALON_SERVICE_LABELS];
+const barberServices = PRICE_CATALOG.filter((entry) => entry.category === "barber");
+const salonServices = PRICE_CATALOG.filter((entry) => entry.category === "hairdresser");
 
 const themes = [
   {
@@ -201,15 +200,33 @@ async function main() {
     });
   }
 
-  for (const [index, label] of barberServices.entries()) {
+  for (const [index, entry] of barberServices.entries()) {
     await prisma.bookableService.create({
-      data: { category: "barber", label, sortOrder: index },
+      data: {
+        category: "barber",
+        group: entry.group,
+        label:
+          entry.price != null
+            ? formatServiceLabel(entry.name, entry.price)
+            : `${entry.name} — ${entry.priceText ?? ""}`.trim(),
+        price: entry.price,
+        sortOrder: index,
+      },
     });
   }
 
-  for (const [index, label] of salonServices.entries()) {
+  for (const [index, entry] of salonServices.entries()) {
     await prisma.bookableService.create({
-      data: { category: "hairdresser", label, sortOrder: index },
+      data: {
+        category: "hairdresser",
+        group: entry.group,
+        label:
+          entry.price != null
+            ? formatServiceLabel(entry.name, entry.price)
+            : `${entry.name} — ${entry.priceText ?? ""}`.trim(),
+        price: entry.price,
+        sortOrder: index,
+      },
     });
   }
 

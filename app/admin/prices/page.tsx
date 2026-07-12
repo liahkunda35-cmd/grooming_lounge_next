@@ -12,6 +12,7 @@ type BookableService = {
   category: "barber" | "hairdresser" | string;
   label: string;
   price: number | null;
+  group?: string | null;
   sortOrder: number;
   isActive: boolean;
 };
@@ -19,12 +20,14 @@ type BookableService = {
 type FormState = {
   name: string;
   price: string;
+  group: string;
   category: "barber" | "hairdresser";
 };
 
 const emptyForm: FormState = {
   name: "",
   price: "",
+  group: "Services",
   category: "barber",
 };
 
@@ -74,6 +77,7 @@ export default function AdminPricesPage() {
     setForm({
       name: parsed.name,
       price: String(service.price ?? parsed.price ?? ""),
+      group: service.group || "Services",
       category: service.category === "hairdresser" ? "hairdresser" : "barber",
     });
     setModalOpen(true);
@@ -97,6 +101,7 @@ export default function AdminPricesPage() {
       name: form.name,
       price: priceValue,
       category: form.category,
+      group: form.group.trim() || "Services",
     };
 
     const response = await fetch(
@@ -176,6 +181,11 @@ export default function AdminPricesPage() {
                 service.category === "hairdresser" ? "Salon" : "Barbershop",
             },
             {
+              key: "group",
+              header: "Section",
+              render: (service) => service.group || "Services",
+            },
+            {
               key: "name",
               header: "Service",
               render: (service) => parseServiceLabel(service.label).name,
@@ -231,6 +241,17 @@ export default function AdminPricesPage() {
               <option value="barber">Barbershop</option>
               <option value="hairdresser">Salon</option>
             </select>
+          </label>
+          <label>
+            Section
+            <input
+              value={form.group}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, group: event.target.value }))
+              }
+              placeholder="Haircuts, Goddess Braids, Nails..."
+              required
+            />
           </label>
           <label>
             Service name

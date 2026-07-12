@@ -10,6 +10,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
+    "db:ensure": "tsx scripts/ensure-content.ts",
     "db:setup": "prisma migrate dev && prisma db seed",
     "postinstall": "prisma generate"
   },

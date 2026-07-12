@@ -32,22 +32,26 @@ function resolveSqlitePath(databaseUrl) {
     path.isAbsolute(filePath) ||
     /^[A-Za-z]:[\\/]/.test(filePath);
 
-  // On Railway, relative paths and the default /app workspace are often
-  // not writable. Keep an explicit volume path like file:/data/prod.db.
   const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID);
-  const looksEphemeral =
-    !isAbsolute ||
-    filePath.includes("prisma/dev.db") ||
-    filePath.includes("/app/") ||
-    filePath.startsWith("./") ||
-    filePath.startsWith("../");
 
-  if (onRailway && looksEphemeral && !filePath.startsWith("/data/")) {
-    const dataDir = process.env.SQLITE_DATA_DIR || "/tmp/grooming-lounge";
-    filePath = path.join(dataDir, "prod.db");
-  } else if (!isAbsolute) {
-    const dataDir = process.env.SQLITE_DATA_DIR || path.join(process.cwd(), "prisma");
-    filePath = path.join(dataDir, path.basename(filePath) || "prod.db");
+  // Prefer a persistent Railway volume at /data when it exists
+  if (onRailway && fs.existsSync("/data")) {
+    filePath = path.join("/data", "prod.db");
+  } else {
+    const looksEphemeral =
+      !isAbsolute ||
+      filePath.includes("prisma/dev.db") ||
+      filePath.includes("/app/") ||
+      filePath.startsWith("./") ||
+      filePath.startsWith("../");
+
+    if (onRailway && looksEphemeral && !filePath.startsWith("/data/")) {
+      const dataDir = process.env.SQLITE_DATA_DIR || "/tmp/grooming-lounge";
+      filePath = path.join(dataDir, "prod.db");
+    } else if (!isAbsolute) {
+      const dataDir = process.env.SQLITE_DATA_DIR || path.join(process.cwd(), "prisma");
+      filePath = path.join(dataDir, path.basename(filePath) || "prod.db");
+    }
   }
 
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -86,6 +90,13 @@ async function main() {
     console.log("[db] Schema ready");
   } catch (error) {
     console.error("[db] prisma db push failed (continuing to start app):", error.message);
+  }
+
+  try {
+    await run("npx", ["tsx", "scripts/ensure-content.ts"]);
+    console.log("[db] Content ensure finished");
+  } catch (error) {
+    console.error("[db] ensure-content failed (continuing):", error.message);
   }
 
   await run("npx", ["next", "start"]);

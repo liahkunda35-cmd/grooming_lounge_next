@@ -9,6 +9,7 @@ const serviceSchema = z.object({
   category: z.enum(["barber", "hairdresser"]),
   name: z.string().trim().min(1, "Service name is required"),
   price: z.number().int().nonnegative().nullable().optional(),
+  group: z.string().trim().min(1).optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
 });
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { category, name, price, isActive } = parsed.data;
+  const { category, name, price, isActive, group } = parsed.data;
   const maxSort = await prisma.bookableService.aggregate({
     where: { category },
     _max: { sortOrder: true },
@@ -46,6 +47,7 @@ export async function POST(request: Request) {
   const service = await prisma.bookableService.create({
     data: {
       category,
+      group: group || "Services",
       label: formatServiceLabel(name, price ?? null),
       price: price ?? null,
       sortOrder: parsed.data.sortOrder ?? (maxSort._max.sortOrder ?? -1) + 1,

@@ -16,6 +16,7 @@ export function formatServiceLabel(name: string, price: number | null | undefine
 
 export function formatPriceDisplay(price: number | null | undefined, label: string): string {
   if (price != null && !Number.isNaN(price)) return `K${price}`;
-  const parsed = parseServiceLabel(label);
-  return parsed.price != null ? `K${parsed.price}` : "—";
+  const match = label.match(/[—–-]\s*(.+)$/);
+  if (match) return match[1].trim();
+  return "—";
 }

@@ -1,16 +1,20 @@
 import Link from "next/link";
 import type { GalleryCategory, GalleryItem } from "@prisma/client";
 import { GalleryCategoryBlock } from "./GalleryCategoryBlock";
-import ServicesExtras from "./ServicesExtras";
+import ServicesExtras, { type PriceListItem } from "./ServicesExtras";
 
 type CategoryWithItems = GalleryCategory & { items: GalleryItem[] };
 
 export default function DynamicServicesPage({
   barbershopCategories,
   salonCategories,
+  barberPriceItems,
+  salonPriceItems,
 }: {
   barbershopCategories: CategoryWithItems[];
   salonCategories: CategoryWithItems[];
+  barberPriceItems?: PriceListItem[];
+  salonPriceItems?: PriceListItem[];
 }) {
   return (
     <>
@@ -163,7 +167,7 @@ export default function DynamicServicesPage({
           </div>
         </section>
       </main>
-      <ServicesExtras />
+      <ServicesExtras barberItems={barberPriceItems} salonItems={salonPriceItems} />
     </>
   );
 }
