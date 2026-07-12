@@ -13,6 +13,7 @@ type BookableService = {
   label: string;
   price: number | null;
   group?: string | null;
+  description?: string | null;
   sortOrder: number;
   isActive: boolean;
 };
@@ -21,6 +22,7 @@ type FormState = {
   name: string;
   price: string;
   group: string;
+  description: string;
   category: "barber" | "hairdresser";
 };
 
@@ -28,6 +30,7 @@ const emptyForm: FormState = {
   name: "",
   price: "",
   group: "Services",
+  description: "",
   category: "barber",
 };
 
@@ -39,10 +42,12 @@ export default function AdminPricesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [saving, setSaving] = useState(false);
 
   const rows = useMemo(() => {
-    if (filter === "all") return services;
-    return services.filter((service) => service.category === filter);
+    const filtered =
+      filter === "all" ? services : services.filter((service) => service.category === filter);
+    return [...filtered].sort((a, b) => a.sortOrder - b.sortOrder);
   }, [services, filter]);
 
   async function loadServices() {
@@ -78,6 +83,7 @@ export default function AdminPricesPage() {
       name: parsed.name,
       price: String(service.price ?? parsed.price ?? ""),
       group: service.group || "Services",
+      description: service.description || "",
       category: service.category === "hairdresser" ? "hairdresser" : "barber",
     });
     setModalOpen(true);
@@ -97,11 +103,13 @@ export default function AdminPricesPage() {
       return;
     }
 
+    setSaving(true);
     const payload = {
       name: form.name,
       price: priceValue,
       category: form.category,
       group: form.group.trim() || "Services",
+      description: form.description.trim() || null,
     };
 
     const response = await fetch(
@@ -112,9 +120,10 @@ export default function AdminPricesPage() {
         body: JSON.stringify(payload),
       },
     );
+    setSaving(false);
 
     if (response.ok) {
-      setMessage(editingId ? "Service updated." : "Service added.");
+      setMessage(editingId ? "Service updated — live site refreshed." : "Service added — live site refreshed.");
       closeModal();
       loadServices();
       router.refresh();
@@ -128,17 +137,43 @@ export default function AdminPricesPage() {
     if (!confirm("Remove this service from the price list?")) return;
     const response = await fetch(`/api/admin/services/${id}`, { method: "DELETE" });
     if (response.ok) {
-      setMessage("Service removed.");
+      setMessage("Service removed — live site refreshed.");
       loadServices();
       router.refresh();
     }
+  }
+
+  async function moveService(service: BookableService, direction: -1 | 1) {
+    const siblings = services
+      .filter((row) => row.category === service.category)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+    const index = siblings.findIndex((row) => row.id === service.id);
+    const swapWith = siblings[index + direction];
+    if (!swapWith) return;
+
+    await Promise.all([
+      fetch(`/api/admin/services/${service.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: swapWith.sortOrder }),
+      }),
+      fetch(`/api/admin/services/${swapWith.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: service.sortOrder }),
+      }),
+    ]);
+
+    setMessage("Order updated — live site refreshed.");
+    loadServices();
+    router.refresh();
   }
 
   return (
     <div className="admin-grid">
       <AdminPageHeader
         title="Price Lists"
-        description="Add and edit barbershop and salon services with their prices. Changes appear on booking and the Services price list."
+        description="Manage Barbershop and Salon prices. Changes appear on the public Services page and booking form immediately."
         message={message}
         actionLabel="Add Service"
         onAction={openCreate}
@@ -156,14 +191,14 @@ export default function AdminPricesPage() {
             className={`btn btn--sm ${filter === "barber" ? "btn--primary" : "btn--outline"}`}
             onClick={() => setFilter("barber")}
           >
-            Barbershop
+            Barbershop Price List
           </button>
           <button
             type="button"
             className={`btn btn--sm ${filter === "hairdresser" ? "btn--primary" : "btn--outline"}`}
             onClick={() => setFilter("hairdresser")}
           >
-            Salon
+            Salon Price List
           </button>
         </div>
       </AdminPageHeader>
@@ -188,7 +223,14 @@ export default function AdminPricesPage() {
             {
               key: "name",
               header: "Service",
-              render: (service) => parseServiceLabel(service.label).name,
+              render: (service) => (
+                <span>
+                  {parseServiceLabel(service.label).name}
+                  {service.description ? (
+                    <span className="admin-muted"> — {service.description}</span>
+                  ) : null}
+                </span>
+              ),
             },
             {
               key: "price",
@@ -200,6 +242,22 @@ export default function AdminPricesPage() {
               header: "Actions",
               render: (service) => (
                 <div className="admin-actions">
+                  <button
+                    type="button"
+                    className="btn btn--outline btn--sm"
+                    onClick={() => moveService(service, -1)}
+                    aria-label="Move up"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn--outline btn--sm"
+                    onClick={() => moveService(service, 1)}
+                    aria-label="Move down"
+                  >
+                    ↓
+                  </button>
                   <button
                     type="button"
                     className="btn btn--outline btn--sm"
@@ -228,7 +286,7 @@ export default function AdminPricesPage() {
       >
         <form className="admin-form" onSubmit={handleSubmit}>
           <label>
-            Category
+            Price list
             <select
               value={form.category}
               onChange={(event) =>
@@ -238,8 +296,8 @@ export default function AdminPricesPage() {
                 }))
               }
             >
-              <option value="barber">Barbershop</option>
-              <option value="hairdresser">Salon</option>
+              <option value="barber">Barbershop Price List</option>
+              <option value="hairdresser">Salon Price List</option>
             </select>
           </label>
           <label>
@@ -275,12 +333,22 @@ export default function AdminPricesPage() {
                 setForm((current) => ({ ...current, price: event.target.value }))
               }
               placeholder="130"
-              required
+            />
+          </label>
+          <label>
+            Description (optional)
+            <textarea
+              value={form.description}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, description: event.target.value }))
+              }
+              placeholder="Short note shown in the admin list"
+              rows={3}
             />
           </label>
           <div className="admin-actions">
-            <button type="submit" className="btn btn--primary">
-              {editingId ? "Save Changes" : "Add Service"}
+            <button type="submit" className="btn btn--primary" disabled={saving}>
+              {saving ? "Saving..." : editingId ? "Save Changes" : "Add Service"}
             </button>
             <button type="button" className="btn btn--outline" onClick={closeModal}>
               Cancel

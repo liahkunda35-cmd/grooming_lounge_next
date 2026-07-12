@@ -2,8 +2,11 @@ import { createReadStream } from "fs";
 import { readFile, stat } from "fs/promises";
 import path from "path";
 import { Readable } from "stream";
+import { getUploadsDir } from "@/lib/data-paths";
 
-export const UPLOAD_ROOT = path.join(process.cwd(), "public", "uploads");
+export function getUploadRoot() {
+  return getUploadsDir();
+}
 
 const MIME_TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -21,8 +24,9 @@ export function resolveUploadFile(segments: string[]): string | null {
   const safeSegments = segments.filter((segment) => segment && segment !== "." && segment !== "..");
   if (safeSegments.length !== segments.length) return null;
 
-  const resolved = path.resolve(UPLOAD_ROOT, ...safeSegments);
-  const relative = path.relative(UPLOAD_ROOT, resolved);
+  const uploadRoot = getUploadRoot();
+  const resolved = path.resolve(uploadRoot, ...safeSegments);
+  const relative = path.relative(uploadRoot, resolved);
   if (relative.startsWith("..") || path.isAbsolute(relative)) {
     return null;
   }

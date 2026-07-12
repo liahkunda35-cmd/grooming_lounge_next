@@ -1,71 +1,75 @@
 /**
- * Railway/production SQLite bootstrap.
- * Error 14 "Unable to open the database file" happens when DATABASE_URL
- * points at a relative/missing path on an ephemeral or read-only filesystem.
+ * Railway/production data bootstrap.
+ * Uses a permanent volume at /data (never /tmp).
  *
- * This script:
- * 1. Picks a writable absolute DB path
- * 2. Creates the parent directory
- * 3. Runs prisma db push
- * 4. Starts Next.js with DATABASE_URL set for the child process
+ * Railway setup:
+ * 1. Add a Volume mounted at /data
+ * 2. Set DATABASE_URL=file:/data/prod.db
  */
 const { spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
+function resolveDataRoot() {
+  if (process.env.DATA_DIR) return path.resolve(process.env.DATA_DIR);
+  const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID);
+  return onRailway ? "/data" : path.join(process.cwd(), "data");
+}
+
 function resolveSqlitePath(databaseUrl) {
-  const raw = (databaseUrl || "file:./prisma/prod.db").trim();
+  const raw = (databaseUrl || "").trim();
 
   // Non-SQLite URLs (postgres/mysql) — leave alone
-  if (!raw.startsWith("file:")) {
+  if (raw && !raw.startsWith("file:")) {
     return { url: raw, filePath: null };
   }
 
-  let filePath = raw.slice("file:".length);
+  const dataRoot = resolveDataRoot();
+  fs.mkdirSync(dataRoot, { recursive: true });
+  fs.mkdirSync(path.join(dataRoot, "uploads"), { recursive: true });
 
-  // Strip leading slashes quirks like file:///./prisma/dev.db on some hosts
-  if (filePath.startsWith("///")) {
-    filePath = filePath.slice(2);
+  // Always prefer permanent data volume path
+  if (raw.startsWith("file:/data/") || process.env.FORCE_DATA_DIR === "1") {
+    const filePath = path.join(dataRoot, "prod.db");
+    const normalized = filePath.replace(/\\/g, "/");
+    return { url: `file:${normalized}`, filePath: normalized };
   }
 
-  const isAbsolute =
-    path.isAbsolute(filePath) ||
-    /^[A-Za-z]:[\\/]/.test(filePath);
+  if (raw.startsWith("file:")) {
+    let filePath = raw.slice("file:".length);
+    if (filePath.startsWith("///")) filePath = filePath.slice(2);
 
-  const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID);
+    const isAbsolute = path.isAbsolute(filePath) || /^[A-Za-z]:[\\/]/.test(filePath);
+    const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID);
 
-  // Prefer a persistent Railway volume at /data when it exists
-  if (onRailway && fs.existsSync("/data")) {
-    filePath = path.join("/data", "prod.db");
-  } else {
-    const looksEphemeral =
+    // Never keep /tmp — migrate to permanent data root
+    if (
+      onRailway ||
+      filePath.includes("/tmp/") ||
       !isAbsolute ||
       filePath.includes("prisma/dev.db") ||
-      filePath.includes("/app/") ||
-      filePath.startsWith("./") ||
-      filePath.startsWith("../");
-
-    if (onRailway && looksEphemeral && !filePath.startsWith("/data/")) {
-      const dataDir = process.env.SQLITE_DATA_DIR || "/tmp/grooming-lounge";
-      filePath = path.join(dataDir, "prod.db");
-    } else if (!isAbsolute) {
-      const dataDir = process.env.SQLITE_DATA_DIR || path.join(process.cwd(), "prisma");
-      filePath = path.join(dataDir, path.basename(filePath) || "prod.db");
+      filePath.startsWith("./")
+    ) {
+      filePath = path.join(dataRoot, "prod.db");
     }
+
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    const normalized = filePath.replace(/\\/g, "/");
+    return { url: `file:${normalized}`, filePath: normalized };
   }
 
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-
-  // Prisma wants forward slashes in file URLs even on Windows
+  const filePath = path.join(dataRoot, "prod.db");
   const normalized = filePath.replace(/\\/g, "/");
   return { url: `file:${normalized}`, filePath: normalized };
 }
 
 const resolved = resolveSqlitePath(process.env.DATABASE_URL);
 process.env.DATABASE_URL = resolved.url;
+process.env.DATA_DIR = resolveDataRoot();
 
 if (resolved.filePath) {
-  console.log(`[db] SQLite path: ${resolved.filePath}`);
+  console.log(`[db] Permanent SQLite path: ${resolved.filePath}`);
+  console.log(`[db] Uploads directory: ${path.join(process.env.DATA_DIR, "uploads")}`);
 } else {
   console.log(`[db] Using non-file DATABASE_URL provider`);
 }

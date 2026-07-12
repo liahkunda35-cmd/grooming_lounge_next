@@ -1,8 +1,8 @@
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
+import { ensureDataDirectories, getUploadsDir } from "@/lib/data-paths";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
@@ -38,12 +38,14 @@ export async function saveUpload(file: File) {
     throw new Error("File is too large. Maximum size is 25MB.");
   }
 
-  await mkdir(UPLOAD_DIR, { recursive: true });
+  ensureDataDirectories();
+  const uploadDir = getUploadsDir();
+  await mkdir(uploadDir, { recursive: true });
 
   const ext = path.extname(file.name) || (fileType.startsWith("video/") ? ".mp4" : ".jpg");
   const filename = `${randomUUID()}${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(UPLOAD_DIR, filename), buffer);
+  await writeFile(path.join(uploadDir, filename), buffer);
 
   return `/uploads/${filename}`;
 }

@@ -4817,6 +4817,17 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
   border-radius: 8px;
 }
 
+.admin-upload-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.admin-muted {
+  color: var(--admin-muted, #7a7a7a);
+  font-size: 0.92em;
+}
+
 .admin-btn-danger {
   background: #c0392b;
   color: #fff;

@@ -10,6 +10,7 @@ const updateSchema = z.object({
   name: z.string().trim().min(1).optional(),
   price: z.number().int().nonnegative().nullable().optional(),
   group: z.string().trim().min(1).optional(),
+  description: z.string().trim().nullable().optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
 });
@@ -41,6 +42,8 @@ export async function PATCH(request: Request, { params }: Params) {
     data: {
       category: parsed.data.category ?? existing.category,
       group: parsed.data.group ?? existing.group,
+      description:
+        parsed.data.description !== undefined ? parsed.data.description : existing.description,
       label: formatServiceLabel(name, price),
       price,
       sortOrder: parsed.data.sortOrder ?? existing.sortOrder,
