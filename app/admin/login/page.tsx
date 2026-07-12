@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PREMIUM_IMAGE_QUALITY } from "@/components/OptimizedImage";
 
@@ -9,13 +9,21 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("reason") === "inactive") {
+      setInfo("Your session has expired due to inactivity. Please sign in again.");
+    }
+  }, [searchParams]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError("");
+    setInfo("");
 
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("email") ?? "").trim();
@@ -112,6 +120,12 @@ export default function AdminLoginPage() {
               </button>
             </span>
           </label>
+
+          {info ? (
+            <p className="form-success admin-login__error" role="status">
+              {info}
+            </p>
+          ) : null}
 
           {error ? (
             <p className="form-error admin-login__error" role="alert">

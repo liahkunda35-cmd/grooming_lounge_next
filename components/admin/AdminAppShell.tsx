@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ReactNode, useEffect, useState } from "react";
 import AdminNav from "@/components/AdminNav";
+import AdminIdleTimeout from "@/components/admin/AdminIdleTimeout";
 
 type AdminAppShellProps = {
   email: string;
@@ -51,6 +52,7 @@ export default function AdminAppShell({
 
   return (
     <div className={`admin-app-frame${navOpen ? " admin-app-frame--nav-open" : ""}`}>
+      <AdminIdleTimeout />
       <button
         type="button"
         className="admin-nav-backdrop"

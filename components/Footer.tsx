@@ -28,9 +28,6 @@ export default function Footer() {
           <Link href="/about">About</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/book">Book</Link>
-          <Link href="/admin/login" className="footer__login-btn">
-            Login
-          </Link>
         </nav>
         <div className="footer__social">
           <a

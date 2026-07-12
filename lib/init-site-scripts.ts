@@ -1099,7 +1099,14 @@ function switchServiceTab(tabName) {
 }
 
 serviceTabBtns.forEach((btn) => {
-  on(btn, 'click', () => switchServiceTab(btn.dataset.serviceTab || ''));
+  on(btn, 'click', () => {
+    switchServiceTab(btn.dataset.serviceTab || '');
+    // Bring the toggles into view (important for bottom cross-nav on mobile)
+    const tabsEl = document.querySelector('.service-tabs');
+    if (tabsEl) {
+      tabsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 });
 
   if (serviceTabBtns.length) {

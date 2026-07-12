@@ -21,8 +21,8 @@ export default function ServicesPage() {
                 
                 <div className="service-panel service-panel--active" id="barbershop-panel" data-service-panel="barbershop">
                   <div className="price-list-actions price-list-actions--barber">
-                    <button className="price-list-btn price-list-btn--barber" type="button" data-price-open="barber" aria-label="View barbershop price list">
-                      <span className="price-list-btn__icon">✂</span> View Price List
+                    <button className="price-list-btn price-list-btn--barber" type="button" data-price-open="barber" aria-label="Barbershop Price List">
+                      <span className="price-list-btn__icon">✂</span> Barbershop Price List
                     </button>
                     <button className="price-list-switch-btn" type="button" data-service-tab="salon">Salon</button>
                   </div>
@@ -32,6 +32,12 @@ export default function ServicesPage() {
                     <h2 className="section__title section__title--luxury">Precision Grooming for Him &amp; Her</h2>
                     <p className="section__desc">Expert cuts, shaves, and styling in a refined barbershop atmosphere.</p>
                   </header>
+
+                  <div className="price-list-inline reveal reveal--fade-up">
+                    <button className="price-list-btn price-list-btn--barber" type="button" data-price-open="barber" aria-label="View Barbershop Price List">
+                      <span className="price-list-btn__icon">✂</span> View Barbershop Price List
+                    </button>
+                  </div>
         
                   <div className="service-category reveal reveal--fade-up">
                     <h3 className="service-category__title">Adult Haircuts</h3>
@@ -194,13 +200,19 @@ export default function ServicesPage() {
                   <div className="section__cta reveal reveal--fade-up">
                     <a href="/book" className="btn btn--primary btn--glow">Book Barbershop</a>
                   </div>
+
+                  <div className="service-cross-nav reveal reveal--fade-up">
+                    <button className="price-list-switch-btn" type="button" data-service-tab="salon">
+                      Explore Our Salon Services
+                    </button>
+                  </div>
                 </div>
         
                 
                 <div className="service-panel" id="salon-panel" data-service-panel="salon" hidden={true}>
                   <div className="price-list-actions price-list-actions--salon">
-                    <button className="price-list-btn price-list-btn--salon" type="button" data-price-open="salon" aria-label="View salon price list">
-                      <span className="price-list-btn__icon">✨</span> View Price List
+                    <button className="price-list-btn price-list-btn--salon" type="button" data-price-open="salon" aria-label="Salon Price List">
+                      <span className="price-list-btn__icon">✨</span> Salon Price List
                     </button>
                     <button className="price-list-switch-btn" type="button" data-service-tab="barbershop">Barbershop</button>
                   </div>
@@ -210,6 +222,12 @@ export default function ServicesPage() {
                     <h2 className="section__title section__title--luxury">Beauty, Braids &amp; Beyond</h2>
                     <p className="section__desc">From intricate braids to flawless nails — your complete beauty destination.</p>
                   </header>
+
+                  <div className="price-list-inline reveal reveal--fade-up">
+                    <button className="price-list-btn price-list-btn--salon" type="button" data-price-open="salon" aria-label="View Salon Price List">
+                      <span className="price-list-btn__icon">✨</span> View Salon Price List
+                    </button>
+                  </div>
         
                   <div className="service-category reveal reveal--fade-up">
                     <h3 className="service-category__title">Braids</h3>
@@ -326,6 +344,12 @@ export default function ServicesPage() {
         
                   <div className="section__cta reveal reveal--fade-up">
                     <a href="/book" className="btn btn--primary btn--glow">Book Salon</a>
+                  </div>
+
+                  <div className="service-cross-nav reveal reveal--fade-up">
+                    <button className="price-list-switch-btn" type="button" data-service-tab="barbershop">
+                      Explore Our Barbershop Services
+                    </button>
                   </div>
                 </div>
         

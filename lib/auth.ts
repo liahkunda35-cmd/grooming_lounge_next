@@ -3,13 +3,13 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import {
   SESSION_COOKIE,
-  SESSION_MAX_AGE,
   signSessionToken,
   verifySessionToken,
   type SessionPayload,
 } from "./auth-session";
 
-export { SESSION_COOKIE, SESSION_MAX_AGE, verifySessionToken };
+export { SESSION_COOKIE, SESSION_MAX_AGE, verifySessionToken } from "./auth-session";
+export type { SessionPayload } from "./auth-session";
 
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 12);
@@ -23,17 +23,25 @@ export async function createSession(email: string) {
   const token = await signSessionToken(email);
 
   const cookieStore = await cookies();
+  // Session cookie (no maxAge): closes with the browser so admins are not
+  // kept signed in across visits. JWT still expires via SESSION_MAX_AGE.
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: SESSION_MAX_AGE,
     path: "/",
   });
 }
 
 export async function destroySession() {
   const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0,
+    path: "/",
+  });
   cookieStore.delete(SESSION_COOKIE);
 }
 

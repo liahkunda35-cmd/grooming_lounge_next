@@ -1156,6 +1156,12 @@ button {
   gap: 0.55rem;
 }
 
+/* Mobile-only in-flow controls — hidden on desktop */
+.price-list-inline,
+.service-cross-nav {
+  display: none;
+}
+
 body.has-seasonal-greeting .price-list-actions {
   top: calc(var(--nav-height) + var(--seasonal-greeting-offset, 2.75rem) + 0.5rem);
 }
@@ -2366,27 +2372,6 @@ body.has-site-announcements.has-seasonal-greeting .price-list-actions {
 .footer__nav a:hover {
   color: var(--gold-pale);
   transform: translateX(4px);
-}
-
-.footer__login-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 0.35rem;
-  padding: 0.55rem 1rem;
-  border-radius: 999px;
-  border: 1px solid rgba(230, 212, 184, 0.45);
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.08);
-  width: fit-content;
-  transform: none !important;
-}
-
-.footer__login-btn:hover {
-  background: rgba(184, 134, 11, 0.35);
-  border-color: var(--gold-pale);
-  color: #fff !important;
-  transform: none !important;
 }
 
 .footer__social {

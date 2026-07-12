@@ -295,22 +295,37 @@
     text-align: center;
   }
 
-  /* Price list floating actions — move to bottom on mobile */
+  /* Hide floating price / switch buttons on tablet & mobile */
   .price-list-actions {
-    top: auto;
-    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
-    right: 1rem;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    max-width: calc(100% - 2rem);
+    display: none !important;
   }
 
-  body.has-seasonal-greeting .price-list-actions,
-  body.has-site-announcements .price-list-actions,
-  body.has-site-announcements.has-seasonal-greeting .price-list-actions {
-    top: auto;
-    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  /* In-flow price list button (replaces floating control) */
+  .price-list-inline {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 1.75rem;
+  }
+
+  .price-list-inline .price-list-btn {
+    width: 100%;
+    max-width: 320px;
+    justify-content: center;
+  }
+
+  /* Cross-nav to the other service side, before footer */
+  .service-cross-nav {
+    display: flex;
+    justify-content: center;
+    margin: 0.5rem 0 0;
+  }
+
+  .service-cross-nav .price-list-switch-btn {
+    width: 100%;
+    max-width: 320px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.35;
   }
 
   /* Price modals */
@@ -695,13 +710,8 @@
   .lightbox__nav--prev { left: 0.5rem; }
   .lightbox__nav--next { right: 0.5rem; }
 
-  .price-list-actions {
-    right: 0.85rem;
-    gap: 0.4rem;
-  }
-
-  .price-list-btn,
-  .price-list-switch-btn {
+  .price-list-inline .price-list-btn,
+  .service-cross-nav .price-list-switch-btn {
     padding: 0.6rem 0.95rem;
     font-size: 0.62rem;
   }

@@ -1,43 +1,9 @@
-import { formatPriceDisplay, parseServiceLabel } from "@/lib/bookable-services";
-
 export type PriceListItem = {
   label: string;
   price: number | null;
 };
 
-function DynamicPriceCard({ title, items }: { title: string; items: PriceListItem[] }) {
-  return (
-    <div className="price-card">
-      <h3 className="price-card__heading">{title}</h3>
-      <ul className="price-list">
-        {items.length ? (
-          items.map((item) => {
-            const { name } = parseServiceLabel(item.label);
-            return (
-              <li key={`${item.label}-${item.price ?? "x"}`}>
-                <span>{name}</span>
-                <strong>{formatPriceDisplay(item.price, item.label)}</strong>
-              </li>
-            );
-          })
-        ) : (
-          <li>
-            <span>No services listed yet</span>
-            <strong>—</strong>
-          </li>
-        )}
-      </ul>
-    </div>
-  );
-}
-
-export default function ServicesExtras({
-  barberItems,
-  salonItems,
-}: {
-  barberItems?: PriceListItem[];
-  salonItems?: PriceListItem[];
-}) {
+export default function ServicesExtras() {
   return (
     <>
       <div className="price-modal price-modal--barber" id="barber-price-modal" role="dialog" aria-modal="true" aria-label="Barbershop price list" hidden={true}>
@@ -57,10 +23,6 @@ export default function ServicesExtras({
               <p className="price-modal__tagline">Your look gives you confidence.</p>
             </header>
             <div className="price-cards price-cards--elegant">
-              {barberItems ? (
-                <DynamicPriceCard title="Services & Prices" items={barberItems} />
-              ) : (
-                <>
               <div className="price-card">
                 <h3 className="price-card__heading">Haircuts</h3>
                 <ul className="price-list">
@@ -95,8 +57,6 @@ export default function ServicesExtras({
                   <li><span>Neck Massage</span><strong>K150</strong></li>
                 </ul>
               </div>
-                </>
-              )}
             </div>
             </div>
           </div>
@@ -120,10 +80,6 @@ export default function ServicesExtras({
               <p className="price-modal__tagline">Your look gives you confidence.</p>
             </header>
             <div className="price-cards price-cards--salon price-cards--elegant">
-              {salonItems ? (
-                <DynamicPriceCard title="Services & Prices" items={salonItems} />
-              ) : (
-                <>
               <div className="price-card">
                 <h3 className="price-card__heading">Goddess Braids</h3>
                 <ul className="price-list">
@@ -288,8 +244,6 @@ export default function ServicesExtras({
                   <li><span>Polly Gel (Alt)</span><strong>K280</strong></li>
                 </ul>
               </div>
-                </>
-              )}
             </div>
             </div>
           </div>

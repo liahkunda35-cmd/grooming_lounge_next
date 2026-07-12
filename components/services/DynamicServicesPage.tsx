@@ -1,20 +1,16 @@
 import Link from "next/link";
 import type { GalleryCategory, GalleryItem } from "@prisma/client";
 import { GalleryCategoryBlock } from "./GalleryCategoryBlock";
-import ServicesExtras, { type PriceListItem } from "./ServicesExtras";
+import ServicesExtras from "./ServicesExtras";
 
 type CategoryWithItems = GalleryCategory & { items: GalleryItem[] };
 
 export default function DynamicServicesPage({
   barbershopCategories,
   salonCategories,
-  barberPriceItems,
-  salonPriceItems,
 }: {
   barbershopCategories: CategoryWithItems[];
   salonCategories: CategoryWithItems[];
-  barberPriceItems?: PriceListItem[];
-  salonPriceItems?: PriceListItem[];
 }) {
   return (
     <>
@@ -42,8 +38,8 @@ export default function DynamicServicesPage({
 
             <div className="service-panel service-panel--active" id="barbershop-panel" data-service-panel="barbershop">
               <div className="price-list-actions price-list-actions--barber">
-                <button className="price-list-btn price-list-btn--barber" type="button" data-price-open="barber" aria-label="View barbershop price list">
-                  <span className="price-list-btn__icon">✂</span> View Price List
+                <button className="price-list-btn price-list-btn--barber" type="button" data-price-open="barber" aria-label="Barbershop Price List">
+                  <span className="price-list-btn__icon">✂</span> Barbershop Price List
                 </button>
                 <button className="price-list-switch-btn" type="button" data-service-tab="salon">
                   Salon
@@ -55,6 +51,17 @@ export default function DynamicServicesPage({
                 <h2 className="section__title section__title--luxury">Precision Grooming for Him &amp; Her</h2>
                 <p className="section__desc">Expert cuts, shaves, and styling in a refined barbershop atmosphere.</p>
               </header>
+
+              <div className="price-list-inline reveal reveal--fade-up">
+                <button
+                  className="price-list-btn price-list-btn--barber"
+                  type="button"
+                  data-price-open="barber"
+                  aria-label="View Barbershop Price List"
+                >
+                  <span className="price-list-btn__icon">✂</span> View Barbershop Price List
+                </button>
+              </div>
 
               {barbershopCategories.map((category) => (
                 <GalleryCategoryBlock
@@ -99,12 +106,18 @@ export default function DynamicServicesPage({
               <div className="section__cta reveal reveal--fade-up">
                 <Link href="/book" className="btn btn--primary btn--glow">Book Barbershop</Link>
               </div>
+
+              <div className="service-cross-nav reveal reveal--fade-up">
+                <button className="price-list-switch-btn" type="button" data-service-tab="salon">
+                  Explore Our Salon Services
+                </button>
+              </div>
             </div>
 
             <div className="service-panel" id="salon-panel" data-service-panel="salon" hidden>
               <div className="price-list-actions price-list-actions--salon">
-                <button className="price-list-btn price-list-btn--salon" type="button" data-price-open="salon" aria-label="View salon price list">
-                  <span className="price-list-btn__icon">✨</span> View Price List
+                <button className="price-list-btn price-list-btn--salon" type="button" data-price-open="salon" aria-label="Salon Price List">
+                  <span className="price-list-btn__icon">✨</span> Salon Price List
                 </button>
                 <button className="price-list-switch-btn" type="button" data-service-tab="barbershop">
                   Barbershop
@@ -116,6 +129,17 @@ export default function DynamicServicesPage({
                 <h2 className="section__title section__title--luxury">Beauty, Braids &amp; Beyond</h2>
                 <p className="section__desc">From intricate braids to flawless nails — your complete beauty destination.</p>
               </header>
+
+              <div className="price-list-inline reveal reveal--fade-up">
+                <button
+                  className="price-list-btn price-list-btn--salon"
+                  type="button"
+                  data-price-open="salon"
+                  aria-label="View Salon Price List"
+                >
+                  <span className="price-list-btn__icon">✨</span> View Salon Price List
+                </button>
+              </div>
 
               {salonCategories.map((category) => (
                 <GalleryCategoryBlock
@@ -129,11 +153,17 @@ export default function DynamicServicesPage({
               <div className="section__cta reveal reveal--fade-up">
                 <Link href="/book" className="btn btn--primary btn--glow">Book Salon</Link>
               </div>
+
+              <div className="service-cross-nav reveal reveal--fade-up">
+                <button className="price-list-switch-btn" type="button" data-service-tab="barbershop">
+                  Explore Our Barbershop Services
+                </button>
+              </div>
             </div>
           </div>
         </section>
       </main>
-      <ServicesExtras barberItems={barberPriceItems} salonItems={salonPriceItems} />
+      <ServicesExtras />
     </>
   );
 }
