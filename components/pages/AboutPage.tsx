@@ -124,15 +124,15 @@ export default function AboutPage({ images }: { images: AboutImagesState }) {
                       </ul>
                       <div className="branch-card__map contact__map-frame">
                         <iframe
-                          title="Grooming Lounge on Google Maps"
+                          title="Grooming Lounge Munaro branch on Google Maps"
                           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3846.537077318991!2d28.39199927488939!3d-15.401537285185254!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19408fda2f84e069%3A0x1be1c395c17ab40c!2sGrooming%20Lounge!5e0!3m2!1sen!2szm!4v1783462743184!5m2!1sen!2szm"
                           width="100%"
                           height="320"
                           style={{ border: 0 }}
                           allowFullScreen
-                          loading="lazy"
-                          referrerPolicy="strict-origin-when-cross-origin">
-                        </iframe>
+                          loading="eager"
+                          referrerPolicy="no-referrer-when-downgrade"
+                        />
                       </div>
                     </div>
                   </article>
@@ -167,14 +167,14 @@ export default function AboutPage({ images }: { images: AboutImagesState }) {
                       <div className="branch-card__map contact__map-frame">
                         <iframe
                           title="Grooming Lounge Ibex Hub branch on Google Maps"
-                          src="https://maps.google.com/maps?q=Ibex+Hub,+Ibex+Hill,+Lusaka,+Zambia&amp;t=&amp;z=17&amp;ie=UTF8&amp;iwloc=&amp;output=embed"
+                          src="https://www.google.com/maps?q=Ibex+Hub+Choppies+Ibex+Hill+Lusaka+Zambia&z=17&hl=en&output=embed"
                           width="100%"
                           height="320"
                           style={{ border: 0 }}
                           allowFullScreen
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade">
-                        </iframe>
+                          loading="eager"
+                          referrerPolicy="no-referrer-when-downgrade"
+                        />
                       </div>
                     </div>
                   </article>
