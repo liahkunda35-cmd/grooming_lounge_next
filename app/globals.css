@@ -467,6 +467,8 @@ button {
 
 #hero.hero.hero--enhanced .hero__media {
   background-image: none;
+  /* Crisp, vibrant photography: slight vibrance + contrast, no color tint */
+  filter: saturate(1.1) contrast(1.06);
 }
 
 #hero.hero.hero--enhanced .hero__bg-img--mobile {
@@ -496,10 +498,10 @@ button {
 }
 
 .hero--enhanced .hero__overlay {
-  background: linear-gradient(135deg, rgba(20, 18, 16, 0.78) 0%, rgba(43, 43, 43, 0.62) 45%, rgba(123, 94, 87, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.16) 50%, rgba(0, 0, 0, 0.28) 100%);
 }
 
-.hero__title span {
+.hero__title .hero__title-sub {
   display: block;
   font-size: 0.55em;
   font-weight: 500;
@@ -622,7 +624,7 @@ button {
 }
 
 .hero--image .hero__overlay {
-  background: linear-gradient(135deg, rgba(20, 18, 16, 0.72) 0%, rgba(43, 43, 43, 0.58) 45%, rgba(123, 94, 87, 0.45) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.16) 50%, rgba(0, 0, 0, 0.28) 100%);
 }
 
 .hero--video .hero__bg { display: none; }
@@ -716,10 +718,10 @@ button {
 .hero__glass {
   display: inline-block;
   padding: 3rem 3.5rem;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: var(--radius);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   max-width: 720px;
@@ -756,6 +758,143 @@ button {
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+/* ============================================
+   Hero Entrance Animations (play once on load)
+   ============================================ */
+
+.hero-intro__word,
+.hero-intro__title-word,
+.hero-intro__line {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* 1. Background image — cinematic settle (scale 1.08 → 1, fade in) */
+  #hero.hero--enhanced .hero__media {
+    animation: heroMediaIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  /* 2. Glass card — rise, fade, tiny scale */
+  .hero-intro__card {
+    animation: heroCardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.7s backwards;
+  }
+
+  /* 3. Location tagline — word-by-word upward reveal */
+  .hero-intro__word {
+    animation: heroWordUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  .hero-intro__word:nth-child(1) { animation-delay: 1.15s; }
+  .hero-intro__word:nth-child(2) { animation-delay: 1.23s; }
+  .hero-intro__word:nth-child(3) { animation-delay: 1.31s; }
+  .hero-intro__word:nth-child(4) { animation-delay: 1.39s; }
+  .hero-intro__word:nth-child(5) { animation-delay: 1.47s; }
+  .hero-intro__word:nth-child(6) { animation-delay: 1.55s; }
+
+  /* 4. Main heading — "Grooming" from left, "Lounge" from right, blur to sharp */
+  .hero-intro__title-word--left {
+    animation: heroTitleFromLeft 0.85s cubic-bezier(0.22, 1, 0.36, 1) 1.5s backwards;
+  }
+  .hero-intro__title-word--right {
+    animation: heroTitleFromRight 0.85s cubic-bezier(0.22, 1, 0.36, 1) 1.5s backwards;
+  }
+
+  /* 5. Subtitle — rise, fade, blur removal */
+  .hero-intro__title-sub {
+    animation: heroRiseBlur 0.7s cubic-bezier(0.22, 1, 0.36, 1) 2.05s backwards;
+  }
+
+  /* 6. Description — line-by-line reveal */
+  .hero-intro__line {
+    animation: heroLineUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  .hero-intro__line:nth-child(1) { animation-delay: 2.25s; }
+  .hero-intro__line:nth-child(2) { animation-delay: 2.37s; }
+
+  /* 7. Buttons — Book from left, View from right, finish together */
+  .hero-intro__btn--left {
+    animation: heroBtnFromLeft 0.65s cubic-bezier(0.22, 1, 0.36, 1) 2.55s backwards;
+  }
+  .hero-intro__btn--right {
+    animation: heroBtnFromRight 0.65s cubic-bezier(0.22, 1, 0.36, 1) 2.55s backwards;
+  }
+
+  /* 8. Navbar — logo fade, links staggered, CTA from right */
+  .navbar__logo {
+    animation: heroNavFade 0.6s ease-out 0.15s backwards;
+  }
+  .navbar__list li {
+    animation: heroNavLink 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  .navbar__list li:nth-child(1) { animation-delay: 0.35s; }
+  .navbar__list li:nth-child(2) { animation-delay: 0.45s; }
+  .navbar__list li:nth-child(3) { animation-delay: 0.55s; }
+  .navbar__list li:nth-child(4) { animation-delay: 0.65s; }
+  .navbar__list li:last-child {
+    animation-name: heroNavCta;
+    animation-delay: 0.75s;
+  }
+}
+
+@keyframes heroMediaIn {
+  from { opacity: 0; transform: scale(1.08); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes heroCardIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes heroWordUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroTitleFromLeft {
+  from { opacity: 0; transform: translateX(-44px); filter: blur(8px); }
+  to { opacity: 1; transform: translateX(0); filter: blur(0); }
+}
+
+@keyframes heroTitleFromRight {
+  from { opacity: 0; transform: translateX(44px); filter: blur(8px); }
+  to { opacity: 1; transform: translateX(0); filter: blur(0); }
+}
+
+@keyframes heroRiseBlur {
+  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes heroLineUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroBtnFromLeft {
+  from { opacity: 0; transform: translateX(-32px) scale(0.94); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes heroBtnFromRight {
+  from { opacity: 0; transform: translateX(32px) scale(0.94); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes heroNavFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes heroNavLink {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroNavCta {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 /* ============================================

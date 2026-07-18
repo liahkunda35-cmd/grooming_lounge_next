@@ -15,13 +15,28 @@ export default function HomePage() {
                 <span className="hero__float hero__float--3">💅</span>
               </div>
               <div className="container hero__content">
-                <div className="hero__glass reveal reveal--fade-up">
-                  <p className="hero__tagline">Munaro Plaza &amp; Ibex Hub, Lusaka</p>
-                  <h1 className="hero__title">Grooming Lounge<br /><span>Barbershop &amp; Salon</span></h1>
-                  <p className="hero__subtitle">Where precision craftsmanship meets modern luxury. Experience grooming elevated to an art form.</p>
+                <div className="hero__glass hero-intro__card">
+                  <p className="hero__tagline">
+                    <span className="hero-intro__word">Munaro</span>{" "}
+                    <span className="hero-intro__word">Plaza</span>{" "}
+                    <span className="hero-intro__word">&amp;</span>{" "}
+                    <span className="hero-intro__word">Ibex</span>{" "}
+                    <span className="hero-intro__word">Hub,</span>{" "}
+                    <span className="hero-intro__word">Lusaka</span>
+                  </p>
+                  <h1 className="hero__title">
+                    <span className="hero-intro__title-word hero-intro__title-word--left">Grooming</span>{" "}
+                    <span className="hero-intro__title-word hero-intro__title-word--right">Lounge</span>
+                    <br />
+                    <span className="hero__title-sub hero-intro__title-sub">Barbershop &amp; Salon</span>
+                  </h1>
+                  <p className="hero__subtitle">
+                    <span className="hero-intro__line">Where precision craftsmanship meets modern luxury.</span>{" "}
+                    <span className="hero-intro__line">Experience grooming elevated to an art form.</span>
+                  </p>
                   <div className="hero__actions">
-                    <a href="/book" className="btn btn--primary btn--glow">Book Appointment</a>
-                    <a href="/services" className="btn btn--glass">View Services</a>
+                    <a href="/book" className="btn btn--primary btn--glow hero-intro__btn hero-intro__btn--left">Book Appointment</a>
+                    <a href="/services" className="btn btn--glass hero-intro__btn hero-intro__btn--right">View Services</a>
                   </div>
                 </div>
               </div>
