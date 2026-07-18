@@ -59,23 +59,34 @@ export default function BookPage() {
 
               <div className="form-row">
                 <div className="form-group">
+                  <label htmlFor="service-category">Service Category</label>
+                  <select id="service-category" name="service-category">
+                    <option value="">Select a category</option>
+                    <option value="barber">Barbershop</option>
+                    <option value="hairdresser">Salon</option>
+                  </select>
+                  <span className="form-error" id="service-category-error" role="alert"></span>
+                </div>
+                <div className="form-group">
                   <label htmlFor="service">Service</label>
-                  <select id="service" name="service">
-                    <option value="">Select a service</option>
+                  <select id="service" name="service" disabled>
+                    <option value="">Please select a category first</option>
                   </select>
                   <span className="form-error" id="service-error" role="alert"></span>
                 </div>
+              </div>
+
+              <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="date">Date of Appointment</label>
                   <input type="date" id="date" name="date" />
                   <span className="form-error" id="date-error" role="alert"></span>
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="time">Time</label>
-                <input type="time" id="time" name="time" />
-                <span className="form-error" id="time-error" role="alert"></span>
+                <div className="form-group">
+                  <label htmlFor="time">Time</label>
+                  <input type="time" id="time" name="time" />
+                  <span className="form-error" id="time-error" role="alert"></span>
+                </div>
               </div>
 
               <div className="form-group">
@@ -89,6 +100,36 @@ export default function BookPage() {
                   placeholder="Any special requests or notes?"
                 ></textarea>
               </div>
+
+              <aside className="booking-summary" id="booking-summary" hidden={true} aria-live="polite">
+                <h2 className="booking-summary__title">Booking Summary</h2>
+                <dl className="booking-summary__list">
+                  <div className="booking-summary__item">
+                    <dt>Category</dt>
+                    <dd id="summary-category">—</dd>
+                  </div>
+                  <div className="booking-summary__item">
+                    <dt>Service</dt>
+                    <dd id="summary-service">—</dd>
+                  </div>
+                  <div className="booking-summary__item">
+                    <dt>Price</dt>
+                    <dd id="summary-price">—</dd>
+                  </div>
+                  <div className="booking-summary__item">
+                    <dt>Specialist</dt>
+                    <dd id="summary-specialist">—</dd>
+                  </div>
+                  <div className="booking-summary__item">
+                    <dt>Date &amp; Time</dt>
+                    <dd id="summary-datetime">—</dd>
+                  </div>
+                  <div className="booking-summary__item">
+                    <dt>Client</dt>
+                    <dd id="summary-client">—</dd>
+                  </div>
+                </dl>
+              </aside>
 
               <p className="form-success" id="form-success" role="status" hidden={true}></p>
 

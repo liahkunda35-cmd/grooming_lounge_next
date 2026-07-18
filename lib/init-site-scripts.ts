@@ -4,6 +4,7 @@ import {
   BARBER_SERVICE_LABELS,
   SALON_SERVICE_LABELS,
 } from '@/lib/bookable-services-catalog';
+import { parseServiceLabel } from '@/lib/bookable-services';
 
 function assetPath(src: string) {
   if (!src || src.startsWith('http') || src.startsWith('/')) return src;
@@ -403,9 +404,25 @@ const APPOINTMENTS_STORAGE_KEY = 'grooming_lounge_appointments';
 const COUNTRY_CODE = '+260';
 const NAME_PATTERN = /^[A-Za-z\s'-]+$/;
 
-const BARBER_SERVICES = BARBER_SERVICE_LABELS.map((label) => ({ value: label, label, category: 'barber' }));
-const SALON_SERVICES = SALON_SERVICE_LABELS.map((label) => ({ value: label, label, category: 'hairdresser' }));
+const BARBER_SERVICES = BARBER_SERVICE_LABELS.map((label) => ({
+  value: label,
+  label,
+  category: 'barber',
+  price: parseServiceLabel(label).price,
+}));
+const SALON_SERVICES = SALON_SERVICE_LABELS.map((label) => ({
+  value: label,
+  label,
+  category: 'hairdresser',
+  price: parseServiceLabel(label).price,
+}));
 const ALL_FALLBACK_SERVICES = [...BARBER_SERVICES, ...SALON_SERVICES];
+
+const CATEGORY_LABELS = { barber: 'Barbershop', hairdresser: 'Salon' };
+
+function getCategoryLabel(category) {
+  return CATEGORY_LABELS[category] || '';
+}
 
 // Set `photo` to an image path (e.g. 'staff/maxwell-banda.jpg') to replace the placeholder avatar.
 const STAFF_MEMBERS = [
@@ -617,6 +634,15 @@ async function loadDynamicStaffCards() {
   renderStaffCards();
 }
 
+function mapApiService(service) {
+  return {
+    value: service.label,
+    label: service.label,
+    category: service.category,
+    price: service.price != null ? service.price : parseServiceLabel(service.label).price,
+  };
+}
+
 async function fetchServicesForCategory(category) {
   let services = category === 'barber' ? [...BARBER_SERVICES] : [...SALON_SERVICES];
 
@@ -625,11 +651,7 @@ async function fetchServicesForCategory(category) {
     if (response.ok) {
       const apiServices = await response.json();
       if (Array.isArray(apiServices) && apiServices.length) {
-        services = apiServices.map((service) => ({
-          value: service.label,
-          label: service.label,
-          category: service.category,
-        }));
+        services = apiServices.map(mapApiService);
       }
     }
   } catch {
@@ -639,26 +661,13 @@ async function fetchServicesForCategory(category) {
   return services;
 }
 
-async function fetchAllServices() {
-  let services = [...ALL_FALLBACK_SERVICES];
+function getSelectedCategory() {
+  return document.getElementById('service-category')?.value || '';
+}
 
-  try {
-    const response = await fetch('/api/services?category=all');
-    if (response.ok) {
-      const apiServices = await response.json();
-      if (Array.isArray(apiServices) && apiServices.length) {
-        services = apiServices.map((service) => ({
-          value: service.label,
-          label: service.label,
-          category: service.category,
-        }));
-      }
-    }
-  } catch {
-    /* use fallback services */
-  }
-
-  return services;
+function findServiceByValue(value) {
+  if (!value) return null;
+  return allBookableServices.find((service) => service.value === value) || null;
 }
 
 function renderServiceOptions(services, placeholder = 'Select a service') {
@@ -675,6 +684,8 @@ function renderServiceOptions(services, placeholder = 'Select a service') {
     serviceSelect.appendChild(option);
   });
 
+  serviceSelect.disabled = false;
+
   if (currentValue && services.some((service) => service.value === currentValue)) {
     serviceSelect.value = currentValue;
   } else {
@@ -682,14 +693,16 @@ function renderServiceOptions(services, placeholder = 'Select a service') {
   }
 }
 
-async function populateServiceOptions(category) {
-  const services = await fetchServicesForCategory(category);
-  renderServiceOptions(services, 'Select a service');
-  updateBookingSummary();
+function disableServiceSelect() {
+  const serviceSelect = document.getElementById('service');
+  if (!serviceSelect) return;
+  serviceSelect.innerHTML = '<option value="">Please select a category first</option>';
+  serviceSelect.value = '';
+  serviceSelect.disabled = true;
 }
 
-async function populateAllServiceOptions() {
-  const services = await fetchAllServices();
+async function populateServiceOptions(category) {
+  const services = await fetchServicesForCategory(category);
   allBookableServices = services;
   renderServiceOptions(services, 'Select a service');
   updateBookingSummary();
@@ -699,19 +712,38 @@ async function ensureServiceOptionsIfNeeded() {
   const serviceSelect = document.getElementById('service');
   if (!serviceSelect || serviceSelect.options.length > 1) return;
 
-  if (selectedSpecialist) {
-    await populateServiceOptions(selectedSpecialist.category);
+  const category = getSelectedCategory();
+  if (category) {
+    await populateServiceOptions(category);
+  }
+}
+
+function setCategorySelect(category) {
+  const categorySelect = document.getElementById('service-category');
+  if (!categorySelect) return;
+  categorySelect.value = category || '';
+}
+
+async function handleCategoryChange() {
+  const category = getSelectedCategory();
+  setFieldError('service-category', '');
+  setFieldError('service', '');
+
+  // Selecting a category different from the chosen specialist clears the specialist
+  if (selectedSpecialist && selectedSpecialist.category !== category) {
+    selectedSpecialist = null;
+    updateStaffCardStates();
+  }
+
+  if (!category) {
+    disableServiceSelect();
+    updateBookingSummary();
     return;
   }
 
-  await populateAllServiceOptions();
-}
-
-function resetServiceSelect() {
   const serviceSelect = document.getElementById('service');
-  if (!serviceSelect) return;
-  serviceSelect.innerHTML = '<option value="">Select a service</option>';
-  serviceSelect.value = '';
+  if (serviceSelect) serviceSelect.value = '';
+  await populateServiceOptions(category);
 }
 
 function handleServiceSelectionChange() {
@@ -761,14 +793,18 @@ function updateBookingSummary() {
   const clientEl = document.getElementById('summary-client');
   if (!summaryEl || !specialistEl || !serviceEl || !datetimeEl || !clientEl) return;
 
+  const categoryEl = document.getElementById('summary-category');
+  const priceEl = document.getElementById('summary-price');
+
   const name = document.getElementById('name')?.value.trim() || '';
   const phoneDigits = document.getElementById('phone')?.value.trim() || '';
   const phone = phoneDigits ? `${COUNTRY_CODE}${phoneDigits}` : '';
+  const category = getSelectedCategory();
   const service = document.getElementById('service')?.value || '';
   const date = document.getElementById('date')?.value || '';
   const time = document.getElementById('time')?.value || '';
 
-  const hasProgress = Boolean(service || selectedSpecialist || name || phoneDigits || date || time);
+  const hasProgress = Boolean(category || service || selectedSpecialist || name || phoneDigits || date || time);
 
   if (selectedSpecialist || hasProgress) {
     summaryEl.removeAttribute('hidden');
@@ -782,7 +818,24 @@ function updateBookingSummary() {
     specialistEl.textContent = '—';
   }
 
-  serviceEl.textContent = service || '—';
+  if (categoryEl) categoryEl.textContent = getCategoryLabel(category) || '—';
+
+  const selectedService = findServiceByValue(service);
+  const parsed = service ? parseServiceLabel(service) : null;
+  serviceEl.textContent = parsed ? parsed.name : '—';
+
+  if (priceEl) {
+    if (selectedService && selectedService.price != null) {
+      priceEl.textContent = `K${selectedService.price}`;
+    } else if (parsed && parsed.price != null) {
+      priceEl.textContent = `K${parsed.price}`;
+    } else if (parsed) {
+      const suffix = service.match(/[—–-]\s*(.+)$/);
+      priceEl.textContent = suffix ? suffix[1].trim() : '—';
+    } else {
+      priceEl.textContent = '—';
+    }
+  }
 
   if (date && time) {
     datetimeEl.textContent = `${formatBookingDate(date)} at ${formatBookingTime(time)}`;
@@ -810,6 +863,8 @@ function selectSpecialist(staffId) {
   if (!member) return;
 
   selectedSpecialist = member;
+  setCategorySelect(member.category);
+  setFieldError('service-category', '');
   populateServiceOptions(member.category);
   updateStaffCardStates();
   setSpecialistError('');
@@ -822,8 +877,9 @@ function selectSpecialist(staffId) {
 function clearSpecialistSelection() {
   selectedSpecialist = null;
   setSpecialistError('');
-  resetServiceSelect();
-  populateAllServiceOptions();
+  setCategorySelect('');
+  disableServiceSelect();
+  updateBookingSummary();
 }
 
 function saveAppointmentToStorage(appointment) {
@@ -844,7 +900,10 @@ function saveAppointmentToStorage(appointment) {
 function initSpecialistBooking() {
   if (!document.getElementById('booking-form')) return;
 
-  populateAllServiceOptions();
+  disableServiceSelect();
+
+  const categorySelect = document.getElementById('service-category');
+  on(categorySelect, 'change', handleCategoryChange);
 
   const serviceSelect = document.getElementById('service');
   on(serviceSelect, 'focus', ensureServiceOptionsIfNeeded);
@@ -893,7 +952,7 @@ function initSpecialistBooking() {
     setFieldError('phone', validators.phone(digits));
   });
 
-  ['name', 'phone', 'service', 'date', 'time'].forEach((fieldId) => {
+  ['name', 'phone', 'service-category', 'service', 'date', 'time'].forEach((fieldId) => {
     const input = document.getElementById(fieldId);
     on(input, 'input', updateBookingSummary);
     on(input, 'change', updateBookingSummary);
@@ -924,7 +983,11 @@ const validators = {
     }
     return '';
   },
-  service: (value) => (!value ? 'Please select a service.' : ''),
+  'service-category': (value) => (!value ? 'Please select a category.' : ''),
+  service: (value) => {
+    if (!getSelectedCategory()) return 'Please select a category first.';
+    return !value ? 'Please select a service.' : '';
+  },
   date: (value) => {
     if (!value) return 'Please select a date.';
     const selected = new Date(`${value}T00:00:00`);
@@ -985,7 +1048,9 @@ function buildWhatsAppMessage(data) {
   let text = 'New Appointment Request\n\n';
   text += `Name: ${data.name}\n`;
   text += `Phone: ${data.phone}\n`;
-  text += `Service: ${data.service}\n`;
+  if (data.categoryLabel) text += `Category: ${data.categoryLabel}\n`;
+  text += `Service: ${data.serviceName || data.service}\n`;
+  if (data.price) text += `Price: ${data.price}\n`;
   text += `Specialist: ${data.specialist || 'No preference'}\n`;
   text += `Date: ${data.date}\n`;
   text += `Time: ${data.time}\n`;
@@ -1011,6 +1076,17 @@ if (bookingForm) {
 
     if (!validateForm()) return;
 
+    const serviceValue = document.getElementById('service').value;
+    const selectedService = findServiceByValue(serviceValue);
+    const parsedService = parseServiceLabel(serviceValue);
+    const category = getSelectedCategory();
+    const price =
+      selectedService && selectedService.price != null
+        ? `K${selectedService.price}`
+        : parsedService.price != null
+          ? `K${parsedService.price}`
+          : '';
+
     const formData = {
       name: document.getElementById('name').value.trim(),
       phone: getFullPhoneNumber(),
@@ -1019,7 +1095,11 @@ if (bookingForm) {
         : '',
       specialistId: selectedSpecialist?.id || '',
       specialistCategory: selectedSpecialist?.category || '',
-      service: document.getElementById('service').value,
+      category,
+      categoryLabel: getCategoryLabel(category),
+      service: serviceValue,
+      serviceName: parsedService.name,
+      price,
       date: document.getElementById('date').value,
       time: document.getElementById('time').value,
       message: document.getElementById('message').value,

@@ -10,7 +10,10 @@ type StoredAppointment = {
   name?: string;
   phone?: string;
   specialist?: string;
+  categoryLabel?: string;
   service?: string;
+  serviceName?: string;
+  price?: string;
   date?: string;
   time?: string;
   message?: string;
@@ -21,7 +24,9 @@ function buildWhatsAppMessage(data: StoredAppointment) {
   if (data.name) text += `Name: ${data.name}\n`;
   if (data.phone) text += `Phone: ${data.phone}\n`;
   if (data.specialist) text += `Specialist: ${data.specialist}\n`;
-  if (data.service) text += `Service: ${data.service}\n`;
+  if (data.categoryLabel) text += `Category: ${data.categoryLabel}\n`;
+  if (data.serviceName || data.service) text += `Service: ${data.serviceName || data.service}\n`;
+  if (data.price) text += `Price: ${data.price}\n`;
   if (data.date) text += `Date: ${data.date}\n`;
   if (data.time) text += `Time: ${data.time}\n`;
   if (data.message?.trim()) text += `Message: ${data.message.trim()}\n`;
